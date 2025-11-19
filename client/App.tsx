@@ -1,3 +1,4 @@
+import { Switch, Route } from "wouter";
 import { queryClient } from "./lib/queryClient";
 import { QueryClientProvider } from "@tanstack/react-query";
 import { Toaster } from "@/components/ui/toaster";
@@ -8,6 +9,8 @@ import About from "@/pages/About";
 import Events from "@/pages/Events";
 import Parks from "@/pages/Parks";
 import { BrowserRouter, Routes, Route as ReactRoute } from "react-router-dom";
+import { createRoot } from "react-dom/client";
+import "@/global.css";
 
 function Router() {
   return (
@@ -31,6 +34,11 @@ function App() {
       <Toaster />
     </QueryClientProvider>
   );
+}
+
+const root = document.getElementById("root");
+if (root) {
+  createRoot(root).render(<App />);
 }
 
 export default App;
