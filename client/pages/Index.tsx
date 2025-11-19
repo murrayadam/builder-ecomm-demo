@@ -191,7 +191,7 @@ export default function Index() {
 
       {/* Events Teaser */}
       <section className="py-20 bg-primary text-white relative overflow-hidden">
-        <div className="absolute inset-0 opacity-10 pattern-grid-lg" />
+        <div className="absolute inset-0 opacity-10 bg-[radial-gradient(circle_at_center,_var(--tw-gradient-stops))] from-white via-transparent to-transparent" />
         <div className="container mx-auto px-4 relative z-10 text-center">
           <h2 className="text-3xl md:text-4xl font-serif font-bold mb-6">Join the Adventure</h2>
           <p className="text-primary-foreground/80 max-w-2xl mx-auto mb-8 text-lg">
