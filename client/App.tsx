@@ -1,30 +1,37 @@
-import "./global.css";
-
+import { Switch, Route } from "wouter";
+import { queryClient } from "./lib/queryClient";
+import { QueryClientProvider } from "@tanstack/react-query";
 import { Toaster } from "@/components/ui/toaster";
-import { createRoot } from "react-dom/client";
-import { Toaster as Sonner } from "@/components/ui/sonner";
-import { TooltipProvider } from "@/components/ui/tooltip";
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
-import Index from "./pages/Index";
-import NotFound from "./pages/NotFound";
+import NotFound from "@/pages/not-found";
+import Index from "@/pages/Index";
+import Shop from "@/pages/Shop";
+import About from "@/pages/About";
+import Events from "@/pages/Events";
+import Parks from "@/pages/Parks";
+import { BrowserRouter, Routes, Route as ReactRoute } from "react-router-dom";
 
-const queryClient = new QueryClient();
+function Router() {
+  return (
+    <BrowserRouter>
+      <Routes>
+        <ReactRoute path="/" element={<Index />} />
+        <ReactRoute path="/shop" element={<Shop />} />
+        <ReactRoute path="/about" element={<About />} />
+        <ReactRoute path="/events" element={<Events />} />
+        <ReactRoute path="/parks" element={<Parks />} />
+        <ReactRoute path="*" element={<NotFound />} />
+      </Routes>
+    </BrowserRouter>
+  );
+}
 
-const App = () => (
-  <QueryClientProvider client={queryClient}>
-    <TooltipProvider>
+function App() {
+  return (
+    <QueryClientProvider client={queryClient}>
+      <Router />
       <Toaster />
-      <Sonner />
-      <BrowserRouter>
-        <Routes>
-          <Route path="/" element={<Index />} />
-          {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
-          <Route path="*" element={<NotFound />} />
-        </Routes>
-      </BrowserRouter>
-    </TooltipProvider>
-  </QueryClientProvider>
-);
+    </QueryClientProvider>
+  );
+}
 
-createRoot(document.getElementById("root")!).render(<App />);
+export default App;
