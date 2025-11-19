@@ -1,22 +1,23 @@
 import { useEffect, useState } from "react";
-import { BuilderComponent, builder, useIsPreviewing } from "@builder.io/sdk-react";
+import { Content, fetchOneEntry, isPreviewing } from "@builder.io/sdk-react";
 import Layout from "@/components/Layout";
 import { BUILDER_PUBLIC_API_KEY } from "@/lib/builder";
 import { Loader2 } from "lucide-react";
 
-// Initialize builder with the API key
-builder.init(BUILDER_PUBLIC_API_KEY);
-
 export default function About() {
-  const isPreviewing = useIsPreviewing();
   const [content, setContent] = useState<any>(null);
   const [notFound, setNotFound] = useState(false);
+  const isPreview = isPreviewing();
 
   useEffect(() => {
     async function fetchContent() {
-      const content = await builder.get("page", {
-        url: "/about",
-      }).promise();
+      const content = await fetchOneEntry({
+        model: "page",
+        apiKey: BUILDER_PUBLIC_API_KEY,
+        userAttributes: {
+          urlPath: "/about",
+        },
+      });
 
       if (content) {
         setContent(content);
@@ -56,7 +57,7 @@ export default function About() {
     </div>
   );
 
-  if (notFound && !isPreviewing) {
+  if (notFound && !isPreview) {
     return (
       <Layout>
         {defaultContent}
@@ -66,8 +67,12 @@ export default function About() {
 
   return (
     <Layout>
-      {content || isPreviewing ? (
-        <BuilderComponent model="page" content={content} />
+      {content || isPreview ? (
+        <Content 
+          model="page" 
+          content={content} 
+          apiKey={BUILDER_PUBLIC_API_KEY}
+        />
       ) : (
         <div className="flex h-[50vh] w-full items-center justify-center">
           <Loader2 className="h-8 w-8 animate-spin text-primary" />
