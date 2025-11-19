@@ -1,15 +1,15 @@
 import { useQuery } from "@tanstack/react-query";
-import { builder } from "@builder.io/sdk-react";
+import { fetchEntries } from "@builder.io/sdk-react";
 import { BuilderContent, Product, Category, Brand } from "@shared/types";
 import { BUILDER_PUBLIC_API_KEY } from "@/lib/builder";
 
-// Initialize builder
-builder.init(BUILDER_PUBLIC_API_KEY);
-
 // Helper to fetch content from Builder
 async function fetchBuilderContent<T>(modelName: string, options: any = {}) {
-  const content = await builder.getAll(modelName, {
+  const content = await fetchEntries({
+    model: modelName,
+    apiKey: BUILDER_PUBLIC_API_KEY,
     ...options,
+    // Ensure we get the data we need
     fields: "data,id,name",
   });
   return content as BuilderContent<T>[];
