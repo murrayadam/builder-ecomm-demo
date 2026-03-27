@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { Content, fetchOneEntry, isPreviewing } from "@builder.io/sdk-react";
 import Layout from "@/components/Layout";
 import { BUILDER_PUBLIC_API_KEY } from "@/lib/builder";
+import { customComponents } from "../../builder-registry";
 import { Loader2 } from "lucide-react";
 
 export default function About() {
@@ -68,10 +69,11 @@ export default function About() {
   return (
     <Layout>
       {content || isPreview ? (
-        <Content 
-          model="page" 
-          content={content} 
+        <Content
+          model="page"
+          content={content}
           apiKey={BUILDER_PUBLIC_API_KEY}
+          customComponents={customComponents}
         />
       ) : (
         <div className="flex h-[50vh] w-full items-center justify-center">
