@@ -7,7 +7,7 @@
  * Import this array and pass it to the `customComponents` prop of <Content />.
  */
 
-import { builder, type RegisteredComponent } from "@builder.io/sdk-react";
+import type { RegisteredComponent } from "@builder.io/sdk-react";
 
 // --- UI Component Imports ---
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "./client/components/ui/accordion";
@@ -34,7 +34,7 @@ import { Slider } from "./client/components/ui/slider";
 import { Switch } from "./client/components/ui/switch";
 import { Table, TableBody, TableCaption, TableCell, TableFooter as TableFooterComp, TableHead, TableHeader, TableRow } from "./client/components/ui/table";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "./client/components/ui/tabs";
-import { Textarea } from "./client/components/ui/textarea";
+import { BuilderTextarea } from "./client/components/ui/textarea-builder";
 import { Toggle } from "./client/components/ui/toggle";
 import { ToggleGroup, ToggleGroupItem } from "./client/components/ui/toggle-group";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "./client/components/ui/tooltip";
@@ -878,8 +878,9 @@ export const customComponents: RegisteredComponent[] = [
 
   // ─── Textarea ─────────────────────────────────────────────────────────────
   {
-    component: Textarea,
+    component: BuilderTextarea,
     name: "Textarea",
+    canHaveChildren: true,
     inputs: [
       {
         name: "placeholder",
@@ -887,6 +888,13 @@ export const customComponents: RegisteredComponent[] = [
         friendlyName: "Placeholder",
         defaultValue: "",
         helperText: "Ghost text shown when empty",
+      },
+      {
+        name: "defaultValue",
+        type: "text",
+        friendlyName: "Default Value",
+        defaultValue: "",
+        helperText: "Initial text content",
       },
       {
         name: "rows",
@@ -1064,63 +1072,27 @@ export const customComponents: RegisteredComponent[] = [
 ];
 
 // --- Design Tokens ---
-// Sourced from client/global.css (:root CSS variables) and tailwind.config.ts.
-// All color variables are raw HSL triplets (e.g. "150 40% 35%"), so they must
-// be wrapped in hsl() when referenced here.
-builder.register("editor.settings", {
-  designTokens: {
-    colors: [
-      // Brand palette
-      { name: "Primary (Pine Green)", value: "hsl(var(--primary))" },
-      { name: "Primary Foreground", value: "hsl(var(--primary-foreground))" },
-      { name: "Secondary (Terracotta)", value: "hsl(var(--secondary))" },
-      { name: "Secondary Foreground", value: "hsl(var(--secondary-foreground))" },
-      // Surfaces
-      { name: "Background (Warm Cream)", value: "hsl(var(--background))" },
-      { name: "Foreground (Deep Forest)", value: "hsl(var(--foreground))" },
-      { name: "Card", value: "hsl(var(--card))" },
-      { name: "Card Foreground", value: "hsl(var(--card-foreground))" },
-      // UI states
-      { name: "Muted", value: "hsl(var(--muted))" },
-      { name: "Muted Foreground", value: "hsl(var(--muted-foreground))" },
-      { name: "Accent (Sky Blue)", value: "hsl(var(--accent))" },
-      { name: "Accent Foreground", value: "hsl(var(--accent-foreground))" },
-      { name: "Destructive", value: "hsl(var(--destructive))" },
-      { name: "Border", value: "hsl(var(--border))" },
-    ],
-    fontFamily: [
-      // Defined in tailwind.config.ts → theme.extend.fontFamily
-      { name: "Sans (Inter)", value: "Inter, sans-serif" },
-      { name: "Serif (Merriweather)", value: "Merriweather, serif" },
-    ],
-    fontSize: [
-      { name: "XS", value: "0.75rem" },
-      { name: "SM", value: "0.875rem" },
-      { name: "Base", value: "1rem" },
-      { name: "LG", value: "1.125rem" },
-      { name: "XL", value: "1.25rem" },
-      { name: "2XL", value: "1.5rem" },
-      { name: "3XL", value: "1.875rem" },
-      { name: "4XL", value: "2.25rem" },
-    ],
-    spacing: [
-      { name: "1 (4px)", value: "0.25rem" },
-      { name: "2 (8px)", value: "0.5rem" },
-      { name: "3 (12px)", value: "0.75rem" },
-      { name: "4 (16px)", value: "1rem" },
-      { name: "6 (24px)", value: "1.5rem" },
-      { name: "8 (32px)", value: "2rem" },
-      { name: "12 (48px)", value: "3rem" },
-      { name: "16 (64px)", value: "4rem" },
-    ],
-    borderRadius: [
-      // Defined in tailwind.config.ts → theme.extend.borderRadius
-      // --radius is 0.5rem (8px)
-      { name: "None", value: "0" },
-      { name: "SM", value: "calc(var(--radius) - 4px)" },
-      { name: "MD", value: "calc(var(--radius) - 2px)" },
-      { name: "Default (LG)", value: "var(--radius)" },
-      { name: "Full", value: "9999px" },
-    ],
-  },
-});
+// Note: Design token registration using builder.register() is not supported in Gen2 SDK.
+// The Gen2 SDK (@builder.io/sdk-react v4) uses a different pattern for design tokens.
+// Design tokens should be configured directly in the Builder.io dashboard under
+// Space Settings > Design System, or you can create a separate registration file
+// that uses the Builder.io REST API to register design tokens programmatically.
+//
+// For reference, these are the design tokens sourced from client/global.css
+// (:root CSS variables) and tailwind.config.ts:
+//
+// Colors (HSL format):
+// - Primary (Pine Green): hsl(var(--primary))
+// - Secondary (Terracotta): hsl(var(--secondary))
+// - Background (Warm Cream): hsl(var(--background))
+// - Foreground (Deep Forest): hsl(var(--foreground))
+// - Accent (Sky Blue): hsl(var(--accent))
+// - And more UI state colors (muted, destructive, border, etc.)
+//
+// Font Families:
+// - Sans (Inter): Inter, sans-serif
+// - Serif (Merriweather): Merriweather, serif
+//
+// Font Sizes: XS (0.75rem) through 4XL (2.25rem)
+// Spacing: 1 (4px) through 16 (64px)
+// Border Radius: None, SM, MD, Default (LG), Full
