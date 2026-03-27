@@ -21,6 +21,7 @@ Bridge Builder.io Fusion (code generation) and Publish (visual CMS) by registeri
 1. **Set up Publish integration** — scaffold the catch-all route, registry, SDK config, and .builderrules
 2. **Register a component** — read TypeScript props, map to Builder input types, add to registry
 3. **Bulk-register components** — scan a directory and register all components at once
+4. **Register design tokens** — expose your design system's colors, typography, spacing, and other CSS tokens in the Builder Visual Editor
 
 ## Quick Start: Detect Project State
 
@@ -180,6 +181,142 @@ Summarize: how many registered, skipped (already registered), and failed (with r
 
 If a sub-agent fails to analyze a component (e.g., complex types that can't be resolved), report the failure but don't block other registrations.
 
+## Workflow 4: Register Design Tokens
+
+Expose your project's design system (colors, fonts, spacing, etc.) in the Builder Visual Editor so content editors only see and use values that match your brand.
+
+To register design tokens with Builder, use the `Builder.register()` function from the Builder SDK and provide your `designTokens` definition in the `editor.settings` object. By providing your own design tokens, you define a consistent set of design values available to your users in the Visual Editor, ensuring your app's design stays consistent with your brand guidelines, and allowing users to quickly select from a curated set of design options.
+
+### Prerequisites
+
+- `builder-registry.ts` exists (Workflow 1 completed)
+- The Builder SDK (`@builder.io/react`) is installed
+
+### Steps
+
+#### Step 1: Read the project's design system
+
+Inspect these files to discover existing tokens:
+
+1. **`global.css` / `globals.css`** — look for `:root { --variable-name: value; }` CSS custom properties
+2. **`tailwind.config.ts` / `tailwind.config.js`** — look for `theme.extend.colors`, `theme.extend.fontSize`, `theme.extend.spacing`, etc.
+3. **Any design system or theme file** (e.g., `tokens.ts`, `theme.ts`, `design-system.ts`)
+
+For Tailwind projects using HSL CSS variables (e.g., `--primary: 150 40% 35%`), reference them as `hsl(var(--primary))`. For direct hex/RGB variables (e.g., `--color-primary: #2d6a4f`), reference them as `var(--color-primary)`.
+
+#### Step 2: Map tokens to Builder categories
+
+Builder recognizes these token categories. Each is a CSS property in camelCase with an array of `{ name, value }` objects:
+
+| Token Category | CSS Property | Visual Editor Effect |
+|---|---|---|
+| `colors` | All color pickers | Font color, background color, border color |
+| `fontFamily` | Font family | Font family selector |
+| `fontSize` | Font size | Font size selector |
+| `fontWeight` | Font weight | Font weight selector |
+| `lineHeight` | Line height | Line height selector |
+| `letterSpacing` | Letter spacing | Letter spacing selector |
+| `spacing` | Margin, padding, sizing | Margin, padding, and size inputs |
+| `borderRadius` | Border radius | Border radius selector |
+| `border` | Border shorthand | Border style selector |
+| `boxShadow` | Box shadow | Shadow selector |
+
+Additional notes:
+- **Any CSS property in camelCase** can be used as a token key (e.g., `opacity`, `zIndex`)
+- Set a key to `false` to **hide** that property entirely from the editor (e.g., `fontFamily: false` removes the font family picker)
+- By default, when you define tokens for a CSS property, the editor limits users to only those values. Use `allowOverridingTokens: true` to let users enter custom values in addition to the predefined tokens — this encourages use of registered values while preserving flexibility.
+
+#### Step 3: Generate the registration call
+
+Add `Builder.register("editor.settings", { ... })` to `builder-registry.ts`, alongside the component registrations. Do NOT create a separate file.
+
+**Template:**
+
+```ts
+// --- Design Tokens ---
+Builder.register("editor.settings", {
+  designTokens: {
+    colors: [
+      { name: "Primary", value: "hsl(var(--primary))" },
+      { name: "Primary Foreground", value: "hsl(var(--primary-foreground))" },
+      { name: "Secondary", value: "hsl(var(--secondary))" },
+      { name: "Secondary Foreground", value: "hsl(var(--secondary-foreground))" },
+      { name: "Background", value: "hsl(var(--background))" },
+      { name: "Foreground", value: "hsl(var(--foreground))" },
+      { name: "Muted", value: "hsl(var(--muted))" },
+      { name: "Muted Foreground", value: "hsl(var(--muted-foreground))" },
+      { name: "Accent", value: "hsl(var(--accent))" },
+      { name: "Border", value: "hsl(var(--border))" },
+      { name: "Destructive", value: "hsl(var(--destructive))" },
+    ],
+    fontFamily: [
+      { name: "Sans", value: "var(--font-sans)" },
+      { name: "Serif", value: "var(--font-serif)" },
+      { name: "Mono", value: "var(--font-mono)" },
+    ],
+    fontSize: [
+      { name: "XS", value: "0.75rem" },
+      { name: "SM", value: "0.875rem" },
+      { name: "Base", value: "1rem" },
+      { name: "LG", value: "1.125rem" },
+      { name: "XL", value: "1.25rem" },
+      { name: "2XL", value: "1.5rem" },
+      { name: "3XL", value: "1.875rem" },
+      { name: "4XL", value: "2.25rem" },
+    ],
+    spacing: [
+      { name: "XS", value: "0.25rem" },
+      { name: "SM", value: "0.5rem" },
+      { name: "MD", value: "1rem" },
+      { name: "LG", value: "1.5rem" },
+      { name: "XL", value: "2rem" },
+      { name: "2XL", value: "3rem" },
+      { name: "3XL", value: "4rem" },
+    ],
+    borderRadius: [
+      { name: "None", value: "0" },
+      { name: "SM", value: "calc(var(--radius) - 4px)" },
+      { name: "MD", value: "calc(var(--radius) - 2px)" },
+      { name: "Default", value: "var(--radius)" },
+      { name: "LG", value: "calc(var(--radius) + 2px)" },
+      { name: "Full", value: "9999px" },
+    ],
+  },
+});
+```
+
+**Adapt to the project:** Replace the token values with what you actually found in Step 1. Only include categories for which you found real values. Don't invent tokens that don't exist in the project's design system.
+
+**CSS variable pattern for Tailwind HSL projects:** Tailwind + shadcn/ui projects store CSS variables as raw HSL values (e.g., `--primary: 150 40% 35%`). Wrap these with `hsl()` when referencing: `hsl(var(--primary))`.
+
+**CSS variable pattern for direct-value projects:** If variables are stored as full color values (e.g., `--color-primary: #2d6a4f`), reference them directly: `var(--color-primary)`.
+
+#### Step 4: Verify in the Visual Editor
+
+After deploying the updated app:
+
+1. Open Builder.io → Publish space → Visual Editor
+2. Select any text block and open the Style tab
+3. Click the color picker — your named tokens (e.g., "Primary", "Secondary") should appear as options
+4. Check the font family, font size, and spacing selectors for registered token names
+5. If tokens don't appear: confirm `builder-registry.ts` is imported in `components/builder.tsx` and the app is deployed (not localhost)
+
+### Design Token Gotchas
+
+1. **`builder-registry.ts` must be imported as a side-effect.** The `Builder.register("editor.settings", ...)` call only runs if the registry file is loaded. Confirm `import "@/builder-registry"` exists in `components/builder.tsx`.
+
+2. **CSS variables must be defined in CSS, not just as fallback values.** Always define CSS variables in your CSS files, not just as fallback values in the `designTokens` configuration. Use fallback values only as a backup, not as the primary source of truth.
+
+3. **Tailwind HSL variables need `hsl()` wrapping.** A variable like `--primary: 150 40% 35%` is not a valid color on its own. Always wrap: `hsl(var(--primary))`.
+
+4. **Token changes require a redeploy.** Unlike content, token registration is code — changes only take effect after the app is redeployed.
+
+5. **`allowOverridingTokens` is per-category.** You can allow overrides for some categories (e.g., `spacing`) but restrict others (e.g., `colors`) by adding `allowOverridingTokens: true` only to the appropriate categories.
+
+6. **Hiding vs. restricting.** Setting a key to `false` (e.g., `fontFamily: false`) hides the field entirely. Defining tokens locks the field to those values. Both are useful depending on how much control you want to give editors.
+
+---
+
 ## Registration History
 
 After each successful registration, append an entry to `registration-log.json` in this skill's directory:
@@ -229,6 +366,7 @@ These are the most common failure modes. Check here first when debugging.
 | Need | Tool | Why |
 |------|------|-----|
 | Register components for Publish visual editor | **This skill** | Automates TypeScript → Builder input mapping and scaffolding |
+| Register design tokens for the Visual Editor | **This skill (Workflow 4)** | Reads CSS variables and Tailwind config, generates `Builder.register("editor.settings", ...)` |
 | Help the AI understand your design system | **Component Indexing** (`npx @builder.io/dev-tools index-repo`) | Different purpose: improves code generation, not Publish registration |
 | Project-wide coding conventions | **AGENTS.md** | Always loaded, good for conventions all AI tools should follow |
 | Directory-scoped rules | **.builderrules** or **.builder/rules/** | Proximity-based, Builder-specific |
@@ -243,6 +381,8 @@ These are the most common failure modes. Check here first when debugging.
 - **Never wrap `BuilderDevTools()` twice.**
 - **Never register event handlers, CSSProperties, or HTML attributes as Builder inputs.**
 - **Never remove either `builder.init()` call.** Server and client inits serve different purposes.
+- **Never use raw HSL triplets as token values without `hsl()` wrapping.** `--primary: 150 40% 35%` must be referenced as `hsl(var(--primary))`, not `var(--primary)`.
+- **Never put `Builder.register("editor.settings", ...)` in a separate file.** Add it directly to `builder-registry.ts` so it runs with the same side-effect import.
 
 ## Audit Checklist
 
@@ -257,6 +397,14 @@ After registering a component, verify:
 - [ ] `children` prop is handled via `canHaveChildren: true`, not as an input
 - [ ] Required props have `required: true`
 - [ ] API key is set in both `.env.local` and deployment environment
+
+### Design Token Registration Checklist
+
+- [ ] `Builder.register("editor.settings", ...)` is in `builder-registry.ts`
+- [ ] Token values use CSS variables that are actually defined in the project's CSS files
+- [ ] HSL-based Tailwind variables are wrapped with `hsl()` (e.g., `hsl(var(--primary))`)
+- [ ] Only token categories with real values in the design system are included
+- [ ] App is deployed (tokens don't appear in localhost-only previews)
 
 ## Scripts
 
