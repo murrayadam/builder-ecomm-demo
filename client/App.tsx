@@ -5,6 +5,7 @@ import NotFound from "@/pages/NotFound";
 import Index from "@/pages/Index";
 import Shop from "@/pages/Shop";
 import About from "@/pages/About";
+import AboutUs from "@/pages/AboutUs";
 import Events from "@/pages/Events";
 import Parks from "@/pages/Parks";
 import { BrowserRouter, MemoryRouter, Routes, Route as ReactRoute } from "react-router-dom";
@@ -16,12 +17,16 @@ const isBuilderEditor = isEditing() || isPreviewing();
 
 function Router() {
   const RouterComponent = isBuilderEditor ? MemoryRouter : BrowserRouter;
+  const routerProps = isBuilderEditor
+    ? { initialEntries: [window.location.pathname] }
+    : {};
   return (
-    <RouterComponent>
+    <RouterComponent {...routerProps}>
       <Routes>
         <ReactRoute path="/" element={<Index />} />
         <ReactRoute path="/shop" element={<Shop />} />
         <ReactRoute path="/about" element={<About />} />
+        <ReactRoute path="/about-us" element={<AboutUs />} />
         <ReactRoute path="/events" element={<Events />} />
         <ReactRoute path="/parks" element={<Parks />} />
         <ReactRoute path="*" element={<NotFound />} />
