@@ -1,30 +1,8 @@
 /**
  * Builder.io Component Registry
  *
- * Registers a trimmed set of standalone UI primitives for use in Builder.io's
+ * Registers all client/components/ui components for use in Builder.io's
  * visual editor (Publish). Uses the Gen2 SDK customComponents pattern.
- *
- * --- Trim policy (why this file is short) ---
- *
- * Earlier versions of this registry exposed every shadcn/Radix sub-part
- * (AccordionItem, DialogContent, TableRow, AlertDialogAction, …) as its own
- * draggable component. That caused two problems in the editor:
- *
- *  1. Sub-parts that rely on React context from a Radix parent (Dialog.*,
- *     Accordion.*, Tabs.*, Tooltip.*, etc.) crash the preview iframe when
- *     dropped onto the canvas standalone — they call `useContext` and get
- *     `undefined`, which throws during render.
- *  2. The Insert menu / schema payload bloated to ~79 entries, slowing the
- *     editor and offering authors many "components" that only work in
- *     specific parent trees.
- *
- * The rule now: only register components that render usefully on their own.
- * Anything that requires a parent context or sibling sub-parts to be
- * meaningful (Dialog, Accordion, Tabs, Tooltip, AlertDialog, RadioGroup,
- * ToggleGroup, Collapsible, Avatar, Breadcrumb, Pagination, Table, …) is
- * intentionally excluded. Reintroduce those via higher-level wrapper
- * components that accept data props (e.g. `<SimpleAccordion items={[…]} />`)
- * and register the wrappers instead.
  *
  * Import this array and pass it to the `customComponents` prop of <Content />.
  */
@@ -32,27 +10,91 @@
 import type { RegisteredComponent } from "@builder.io/sdk-react";
 
 // --- UI Component Imports ---
-import { Alert } from "./client/components/ui/alert";
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "./client/components/ui/accordion";
+import { Alert, AlertDescription, AlertTitle } from "./client/components/ui/alert";
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "./client/components/ui/alert-dialog";
 import { AspectRatio } from "./client/components/ui/aspect-ratio";
+import { Avatar, AvatarFallback, AvatarImage } from "./client/components/ui/avatar";
 import { Badge } from "./client/components/ui/badge";
+import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator } from "./client/components/ui/breadcrumb";
 import { Button } from "./client/components/ui/button";
-import { Card } from "./client/components/ui/card";
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "./client/components/ui/card";
 import { Checkbox } from "./client/components/ui/checkbox";
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "./client/components/ui/collapsible";
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "./client/components/ui/dialog";
 import { Input } from "./client/components/ui/input";
 import { Label } from "./client/components/ui/label";
+import { Pagination, PaginationContent, PaginationItem, PaginationNext, PaginationPrevious } from "./client/components/ui/pagination";
 import { Progress } from "./client/components/ui/progress";
+import { RadioGroup, RadioGroupItem } from "./client/components/ui/radio-group";
 import { ScrollArea } from "./client/components/ui/scroll-area";
 import { Separator } from "./client/components/ui/separator";
 import { Skeleton } from "./client/components/ui/skeleton";
 import { Slider } from "./client/components/ui/slider";
 import { Switch } from "./client/components/ui/switch";
+import { Table, TableBody, TableCaption, TableCell, TableFooter as TableFooterComp, TableHead, TableHeader, TableRow } from "./client/components/ui/table";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "./client/components/ui/tabs";
 import { BuilderTextarea } from "./client/components/ui/textarea-builder";
 import { Toggle } from "./client/components/ui/toggle";
+import { ToggleGroup, ToggleGroupItem } from "./client/components/ui/toggle-group";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "./client/components/ui/tooltip";
 
 export const customComponents: RegisteredComponent[] = [
+  // ─── Accordion ────────────────────────────────────────────────────────────
+  {
+    component: Accordion,
+    name: "Accordion",
+    canHaveChildren: true,
+    inputs: [
+      {
+        name: "type",
+        type: "text",
+        friendlyName: "Type",
+        defaultValue: "single",
+        enum: [
+          { label: "Single (one item open at a time)", value: "single" },
+          { label: "Multiple (many items open)", value: "multiple" },
+        ],
+        helperText: "Whether one or many items can be expanded",
+      },
+      {
+        name: "collapsible",
+        type: "boolean",
+        friendlyName: "Collapsible",
+        defaultValue: true,
+        helperText: "Allow closing an already-open item (single mode only)",
+      },
+    ],
+  },
+  {
+    component: AccordionItem,
+    name: "AccordionItem",
+    canHaveChildren: true,
+    inputs: [
+      {
+        name: "value",
+        type: "text",
+        friendlyName: "Value",
+        required: true,
+        defaultValue: "item-1",
+        helperText: "Unique identifier for this accordion item",
+      },
+    ],
+  },
+  {
+    component: AccordionTrigger,
+    name: "AccordionTrigger",
+    canHaveChildren: true,
+    inputs: [],
+  },
+  {
+    component: AccordionContent,
+    name: "AccordionContent",
+    canHaveChildren: true,
+    inputs: [],
+  },
+
   // ─── Alert ────────────────────────────────────────────────────────────────
-  // Root only. AlertTitle/AlertDescription are plain styled divs — authors
-  // can use Builder Text blocks (or any children) inside.
   {
     component: Alert,
     name: "Alert",
@@ -71,8 +113,83 @@ export const customComponents: RegisteredComponent[] = [
       },
     ],
   },
+  {
+    component: AlertTitle,
+    name: "AlertTitle",
+    canHaveChildren: true,
+    inputs: [],
+  },
+  {
+    component: AlertDescription,
+    name: "AlertDescription",
+    canHaveChildren: true,
+    inputs: [],
+  },
 
-  // ─── AspectRatio ──────────────────────────────────────────────────────────
+  // ─── Alert Dialog ─────────────────────────────────────────────────────────
+  {
+    component: AlertDialog,
+    name: "AlertDialog",
+    canHaveChildren: true,
+    inputs: [
+      {
+        name: "defaultOpen",
+        type: "boolean",
+        friendlyName: "Default Open",
+        defaultValue: false,
+      },
+    ],
+  },
+  {
+    component: AlertDialogTrigger,
+    name: "AlertDialogTrigger",
+    canHaveChildren: true,
+    inputs: [],
+  },
+  {
+    component: AlertDialogContent,
+    name: "AlertDialogContent",
+    canHaveChildren: true,
+    inputs: [],
+  },
+  {
+    component: AlertDialogHeader,
+    name: "AlertDialogHeader",
+    canHaveChildren: true,
+    inputs: [],
+  },
+  {
+    component: AlertDialogFooter,
+    name: "AlertDialogFooter",
+    canHaveChildren: true,
+    inputs: [],
+  },
+  {
+    component: AlertDialogTitle,
+    name: "AlertDialogTitle",
+    canHaveChildren: true,
+    inputs: [],
+  },
+  {
+    component: AlertDialogDescription,
+    name: "AlertDialogDescription",
+    canHaveChildren: true,
+    inputs: [],
+  },
+  {
+    component: AlertDialogAction,
+    name: "AlertDialogAction",
+    canHaveChildren: true,
+    inputs: [],
+  },
+  {
+    component: AlertDialogCancel,
+    name: "AlertDialogCancel",
+    canHaveChildren: true,
+    inputs: [],
+  },
+
+  // ─── Aspect Ratio ─────────────────────────────────────────────────────────
   {
     component: AspectRatio,
     name: "AspectRatio",
@@ -86,6 +203,40 @@ export const customComponents: RegisteredComponent[] = [
         helperText: "Width to height ratio (e.g. 16/9 = 1.77)",
       },
     ],
+  },
+
+  // ─── Avatar ───────────────────────────────────────────────────────────────
+  {
+    component: Avatar,
+    name: "Avatar",
+    canHaveChildren: true,
+    inputs: [],
+  },
+  {
+    component: AvatarImage,
+    name: "AvatarImage",
+    inputs: [
+      {
+        name: "src",
+        type: "file",
+        friendlyName: "Image",
+        allowedFileTypes: ["jpeg", "jpg", "png", "webp", "svg"],
+        helperText: "Avatar image source URL",
+      },
+      {
+        name: "alt",
+        type: "text",
+        friendlyName: "Alt Text",
+        defaultValue: "Avatar",
+        helperText: "Accessible description of the image",
+      },
+    ],
+  },
+  {
+    component: AvatarFallback,
+    name: "AvatarFallback",
+    canHaveChildren: true,
+    inputs: [],
   },
 
   // ─── Badge ────────────────────────────────────────────────────────────────
@@ -108,6 +259,50 @@ export const customComponents: RegisteredComponent[] = [
         helperText: "Visual style of the badge",
       },
     ],
+  },
+
+  // ─── Breadcrumb ───────────────────────────────────────────────────────────
+  {
+    component: Breadcrumb,
+    name: "Breadcrumb",
+    canHaveChildren: true,
+    inputs: [],
+  },
+  {
+    component: BreadcrumbList,
+    name: "BreadcrumbList",
+    canHaveChildren: true,
+    inputs: [],
+  },
+  {
+    component: BreadcrumbItem,
+    name: "BreadcrumbItem",
+    canHaveChildren: true,
+    inputs: [],
+  },
+  {
+    component: BreadcrumbLink,
+    name: "BreadcrumbLink",
+    canHaveChildren: true,
+    inputs: [
+      {
+        name: "href",
+        type: "url",
+        friendlyName: "Link URL",
+        helperText: "Destination URL of this breadcrumb step",
+      },
+    ],
+  },
+  {
+    component: BreadcrumbPage,
+    name: "BreadcrumbPage",
+    canHaveChildren: true,
+    inputs: [],
+  },
+  {
+    component: BreadcrumbSeparator,
+    name: "BreadcrumbSeparator",
+    inputs: [],
   },
 
   // ─── Button ───────────────────────────────────────────────────────────────
@@ -152,11 +347,39 @@ export const customComponents: RegisteredComponent[] = [
   },
 
   // ─── Card ─────────────────────────────────────────────────────────────────
-  // Root only. CardHeader/CardTitle/CardContent/etc. are plain styled divs —
-  // authors can compose content with any Builder blocks as children.
   {
     component: Card,
     name: "Card",
+    canHaveChildren: true,
+    inputs: [],
+  },
+  {
+    component: CardHeader,
+    name: "CardHeader",
+    canHaveChildren: true,
+    inputs: [],
+  },
+  {
+    component: CardTitle,
+    name: "CardTitle",
+    canHaveChildren: true,
+    inputs: [],
+  },
+  {
+    component: CardDescription,
+    name: "CardDescription",
+    canHaveChildren: true,
+    inputs: [],
+  },
+  {
+    component: CardContent,
+    name: "CardContent",
+    canHaveChildren: true,
+    inputs: [],
+  },
+  {
+    component: CardFooter,
+    name: "CardFooter",
     canHaveChildren: true,
     inputs: [],
   },
@@ -186,6 +409,90 @@ export const customComponents: RegisteredComponent[] = [
         advanced: true,
       },
     ],
+  },
+
+  // ─── Collapsible ──────────────────────────────────────────────────────────
+  {
+    component: Collapsible,
+    name: "Collapsible",
+    canHaveChildren: true,
+    inputs: [
+      {
+        name: "defaultOpen",
+        type: "boolean",
+        friendlyName: "Default Open",
+        defaultValue: false,
+      },
+      {
+        name: "disabled",
+        type: "boolean",
+        friendlyName: "Disabled",
+        defaultValue: false,
+      },
+    ],
+  },
+  {
+    component: CollapsibleTrigger,
+    name: "CollapsibleTrigger",
+    canHaveChildren: true,
+    inputs: [],
+  },
+  {
+    component: CollapsibleContent,
+    name: "CollapsibleContent",
+    canHaveChildren: true,
+    inputs: [],
+  },
+
+  // ─── Dialog ───────────────────────────────────────────────────────────────
+  {
+    component: Dialog,
+    name: "Dialog",
+    canHaveChildren: true,
+    inputs: [
+      {
+        name: "defaultOpen",
+        type: "boolean",
+        friendlyName: "Default Open",
+        defaultValue: false,
+      },
+    ],
+  },
+  {
+    component: DialogTrigger,
+    name: "DialogTrigger",
+    canHaveChildren: true,
+    inputs: [],
+  },
+  {
+    component: DialogContent,
+    name: "DialogContent",
+    canHaveChildren: true,
+    inputs: [],
+  },
+  {
+    component: DialogHeader,
+    name: "DialogHeader",
+    canHaveChildren: true,
+    inputs: [],
+  },
+  {
+    component: DialogFooter,
+    name: "DialogFooter",
+    canHaveChildren: true,
+    inputs: [],
+  },
+  {
+    component: DialogTitle,
+    name: "DialogTitle",
+    canHaveChildren: true,
+    inputs: [],
+  },
+  {
+    component: DialogDescription,
+    name: "DialogDescription",
+    canHaveChildren: true,
+    inputs: [],
   },
 
   // ─── Input ────────────────────────────────────────────────────────────────
@@ -239,6 +546,48 @@ export const customComponents: RegisteredComponent[] = [
     ],
   },
 
+  // ─── Pagination ───────────────────────────────────────────────────────────
+  {
+    component: Pagination,
+    name: "Pagination",
+    canHaveChildren: true,
+    inputs: [],
+  },
+  {
+    component: PaginationContent,
+    name: "PaginationContent",
+    canHaveChildren: true,
+    inputs: [],
+  },
+  {
+    component: PaginationItem,
+    name: "PaginationItem",
+    canHaveChildren: true,
+    inputs: [],
+  },
+  {
+    component: PaginationPrevious,
+    name: "PaginationPrevious",
+    inputs: [
+      {
+        name: "href",
+        type: "url",
+        friendlyName: "Previous URL",
+      },
+    ],
+  },
+  {
+    component: PaginationNext,
+    name: "PaginationNext",
+    inputs: [
+      {
+        name: "href",
+        type: "url",
+        friendlyName: "Next URL",
+      },
+    ],
+  },
+
   // ─── Progress ─────────────────────────────────────────────────────────────
   {
     component: Progress,
@@ -252,6 +601,54 @@ export const customComponents: RegisteredComponent[] = [
         min: 0,
         max: 100,
         helperText: "Progress percentage (0–100)",
+      },
+    ],
+  },
+
+  // ─── RadioGroup ───────────────────────────────────────────────────────────
+  {
+    component: RadioGroup,
+    name: "RadioGroup",
+    canHaveChildren: true,
+    inputs: [
+      {
+        name: "defaultValue",
+        type: "text",
+        friendlyName: "Default Value",
+        helperText: "Value of the initially selected radio item",
+      },
+      {
+        name: "disabled",
+        type: "boolean",
+        friendlyName: "Disabled",
+        defaultValue: false,
+      },
+    ],
+  },
+  {
+    component: RadioGroupItem,
+    name: "RadioGroupItem",
+    inputs: [
+      {
+        name: "value",
+        type: "text",
+        friendlyName: "Value",
+        required: true,
+        defaultValue: "option-1",
+        helperText: "Unique value for this radio option",
+      },
+      {
+        name: "disabled",
+        type: "boolean",
+        friendlyName: "Disabled",
+        defaultValue: false,
+      },
+      {
+        name: "id",
+        type: "text",
+        friendlyName: "ID",
+        helperText: "Used to associate with a Label's htmlFor",
+        advanced: true,
       },
     ],
   },
@@ -322,14 +719,19 @@ export const customComponents: RegisteredComponent[] = [
         defaultValue: 1,
         helperText: "Increment between each selectable value",
       },
-      // NOTE: previously a `defaultValue` input declared as `type: "list"`
-      // with `subFields: [{ name: "value", type: "number" }]`. Builder fed
-      // the component `[{ value: 50 }]` but Radix Slider expects `number[]`,
-      // and the malformed schema also appears to break the editor's input
-      // panel on load. Omit the input — Radix uses an internal default.
-      // To restore an editable default later, expose Slider through a
-      // wrapper component that takes a single `number` and passes
-      // `[value]` to Slider's `defaultValue`.
+      {
+        name: "defaultValue",
+        type: "list",
+        friendlyName: "Default Value",
+        defaultValue: [50],
+        subFields: [
+          {
+            name: "value",
+            type: "number",
+          },
+        ],
+        helperText: "Initial slider value(s)",
+      },
       {
         name: "disabled",
         type: "boolean",
@@ -362,6 +764,114 @@ export const customComponents: RegisteredComponent[] = [
         friendlyName: "ID",
         helperText: "Used to associate with a Label's htmlFor",
         advanced: true,
+      },
+    ],
+  },
+
+  // ─── Table ────────────────────────────────────────────────────────────────
+  {
+    component: Table,
+    name: "Table",
+    canHaveChildren: true,
+    inputs: [],
+  },
+  {
+    component: TableHeader,
+    name: "TableHeader",
+    canHaveChildren: true,
+    inputs: [],
+  },
+  {
+    component: TableBody,
+    name: "TableBody",
+    canHaveChildren: true,
+    inputs: [],
+  },
+  {
+    component: TableFooterComp,
+    name: "TableFooter",
+    canHaveChildren: true,
+    inputs: [],
+  },
+  {
+    component: TableRow,
+    name: "TableRow",
+    canHaveChildren: true,
+    inputs: [],
+  },
+  {
+    component: TableHead,
+    name: "TableHead",
+    canHaveChildren: true,
+    inputs: [],
+  },
+  {
+    component: TableCell,
+    name: "TableCell",
+    canHaveChildren: true,
+    inputs: [],
+  },
+  {
+    component: TableCaption,
+    name: "TableCaption",
+    canHaveChildren: true,
+    inputs: [],
+  },
+
+  // ─── Tabs ─────────────────────────────────────────────────────────────────
+  {
+    component: Tabs,
+    name: "Tabs",
+    canHaveChildren: true,
+    inputs: [
+      {
+        name: "defaultValue",
+        type: "text",
+        friendlyName: "Default Tab",
+        defaultValue: "tab-1",
+        helperText: "Value of the tab open by default",
+      },
+    ],
+  },
+  {
+    component: TabsList,
+    name: "TabsList",
+    canHaveChildren: true,
+    inputs: [],
+  },
+  {
+    component: TabsTrigger,
+    name: "TabsTrigger",
+    canHaveChildren: true,
+    inputs: [
+      {
+        name: "value",
+        type: "text",
+        friendlyName: "Value",
+        required: true,
+        defaultValue: "tab-1",
+        helperText: "Must match the value in the corresponding TabsContent",
+      },
+      {
+        name: "disabled",
+        type: "boolean",
+        friendlyName: "Disabled",
+        defaultValue: false,
+      },
+    ],
+  },
+  {
+    component: TabsContent,
+    name: "TabsContent",
+    canHaveChildren: true,
+    inputs: [
+      {
+        name: "value",
+        type: "text",
+        friendlyName: "Value",
+        required: true,
+        defaultValue: "tab-1",
+        helperText: "Must match the value in the corresponding TabsTrigger",
       },
     ],
   },
@@ -443,8 +953,146 @@ export const customComponents: RegisteredComponent[] = [
       },
     ],
   },
+
+  // ─── ToggleGroup ──────────────────────────────────────────────────────────
+  {
+    component: ToggleGroup,
+    name: "ToggleGroup",
+    canHaveChildren: true,
+    inputs: [
+      {
+        name: "type",
+        type: "text",
+        friendlyName: "Selection Type",
+        defaultValue: "single",
+        enum: [
+          { label: "Single", value: "single" },
+          { label: "Multiple", value: "multiple" },
+        ],
+      },
+      {
+        name: "variant",
+        type: "text",
+        friendlyName: "Variant",
+        defaultValue: "default",
+        enum: [
+          { label: "Default", value: "default" },
+          { label: "Outline", value: "outline" },
+        ],
+      },
+      {
+        name: "size",
+        type: "text",
+        friendlyName: "Size",
+        defaultValue: "default",
+        enum: [
+          { label: "Default", value: "default" },
+          { label: "Small", value: "sm" },
+          { label: "Large", value: "lg" },
+        ],
+      },
+    ],
+  },
+  {
+    component: ToggleGroupItem,
+    name: "ToggleGroupItem",
+    canHaveChildren: true,
+    inputs: [
+      {
+        name: "value",
+        type: "text",
+        friendlyName: "Value",
+        required: true,
+        defaultValue: "item-1",
+        helperText: "Unique identifier for this toggle option",
+      },
+      {
+        name: "disabled",
+        type: "boolean",
+        friendlyName: "Disabled",
+        defaultValue: false,
+      },
+    ],
+  },
+
+  // ─── Tooltip ──────────────────────────────────────────────────────────────
+  {
+    component: TooltipProvider,
+    name: "TooltipProvider",
+    canHaveChildren: true,
+    inputs: [
+      {
+        name: "delayDuration",
+        type: "number",
+        friendlyName: "Delay Duration (ms)",
+        defaultValue: 700,
+        helperText: "Milliseconds before tooltip opens",
+      },
+    ],
+  },
+  {
+    component: Tooltip,
+    name: "Tooltip",
+    canHaveChildren: true,
+    inputs: [],
+  },
+  {
+    component: TooltipTrigger,
+    name: "TooltipTrigger",
+    canHaveChildren: true,
+    inputs: [],
+  },
+  {
+    component: TooltipContent,
+    name: "TooltipContent",
+    canHaveChildren: true,
+    inputs: [
+      {
+        name: "side",
+        type: "text",
+        friendlyName: "Side",
+        defaultValue: "top",
+        enum: [
+          { label: "Top", value: "top" },
+          { label: "Bottom", value: "bottom" },
+          { label: "Left", value: "left" },
+          { label: "Right", value: "right" },
+        ],
+        helperText: "Which side of the trigger the tooltip appears on",
+      },
+      {
+        name: "sideOffset",
+        type: "number",
+        friendlyName: "Side Offset",
+        defaultValue: 4,
+        helperText: "Distance in pixels from the trigger",
+      },
+    ],
+  },
 ];
 
-// Design tokens are registered in client/lib/builder-design-tokens.ts, which
-// is imported from client/App.tsx for its side effect so the
-// `register("editor.settings", …)` postMessage fires on every route.
+// --- Design Tokens ---
+// Note: Design token registration using builder.register() is not supported in Gen2 SDK.
+// The Gen2 SDK (@builder.io/sdk-react v4) uses a different pattern for design tokens.
+// Design tokens should be configured directly in the Builder.io dashboard under
+// Space Settings > Design System, or you can create a separate registration file
+// that uses the Builder.io REST API to register design tokens programmatically.
+//
+// For reference, these are the design tokens sourced from client/global.css
+// (:root CSS variables) and tailwind.config.ts:
+//
+// Colors (HSL format):
+// - Primary (Pine Green): hsl(var(--primary))
+// - Secondary (Terracotta): hsl(var(--secondary))
+// - Background (Warm Cream): hsl(var(--background))
+// - Foreground (Deep Forest): hsl(var(--foreground))
+// - Accent (Sky Blue): hsl(var(--accent))
+// - And more UI state colors (muted, destructive, border, etc.)
+//
+// Font Families:
+// - Sans (Inter): Inter, sans-serif
+// - Serif (Merriweather): Merriweather, serif
+//
+// Font Sizes: XS (0.75rem) through 4XL (2.25rem)
+// Spacing: 1 (4px) through 16 (64px)
+// Border Radius: None, SM, MD, Default (LG), Full
