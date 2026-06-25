@@ -1,7 +1,7 @@
 import { queryClient } from "./lib/queryClient";
 import { QueryClientProvider } from "@tanstack/react-query";
 import { Toaster } from "@/components/ui/toaster";
-import NotFound from "@/pages/NotFound";
+import BuilderPage from "@/pages/BuilderPage";
 import Index from "@/pages/Index";
 import Shop from "@/pages/Shop";
 import About from "@/pages/About";
@@ -11,6 +11,7 @@ import { BrowserRouter, MemoryRouter, Routes, Route as ReactRoute } from "react-
 import { isPreviewing, isEditing } from "@builder.io/sdk-react";
 import { createRoot } from "react-dom/client";
 import "@/global.css";
+import "@/lib/builder-design-tokens";
 
 const isBuilderEditor = isEditing() || isPreviewing();
 
@@ -24,7 +25,7 @@ function Router() {
         <ReactRoute path="/about" element={<About />} />
         <ReactRoute path="/events" element={<Events />} />
         <ReactRoute path="/parks" element={<Parks />} />
-        <ReactRoute path="*" element={<NotFound />} />
+        <ReactRoute path="*" element={<BuilderPage />} />
       </Routes>
     </RouterComponent>
   );
