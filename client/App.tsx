@@ -17,8 +17,11 @@ const isBuilderEditor = isEditing() || isPreviewing();
 
 function Router() {
   const RouterComponent = isBuilderEditor ? MemoryRouter : BrowserRouter;
+  const routerProps = isBuilderEditor
+    ? { initialEntries: [window.location.pathname] }
+    : {};
   return (
-    <RouterComponent>
+    <RouterComponent {...routerProps}>
       <Routes>
         <ReactRoute path="/" element={<Index />} />
         <ReactRoute path="/shop" element={<Shop />} />
