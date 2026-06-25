@@ -7,13 +7,17 @@ import Shop from "@/pages/Shop";
 import About from "@/pages/About";
 import Events from "@/pages/Events";
 import Parks from "@/pages/Parks";
-import { BrowserRouter, Routes, Route as ReactRoute } from "react-router-dom";
+import { BrowserRouter, MemoryRouter, Routes, Route as ReactRoute } from "react-router-dom";
+import { isPreviewing, isEditing } from "@builder.io/sdk-react";
 import { createRoot } from "react-dom/client";
 import "@/global.css";
 
+const isBuilderEditor = isEditing() || isPreviewing();
+
 function Router() {
+  const RouterComponent = isBuilderEditor ? MemoryRouter : BrowserRouter;
   return (
-    <BrowserRouter>
+    <RouterComponent>
       <Routes>
         <ReactRoute path="/" element={<Index />} />
         <ReactRoute path="/shop" element={<Shop />} />
@@ -22,7 +26,7 @@ function Router() {
         <ReactRoute path="/parks" element={<Parks />} />
         <ReactRoute path="*" element={<NotFound />} />
       </Routes>
-    </BrowserRouter>
+    </RouterComponent>
   );
 }
 
