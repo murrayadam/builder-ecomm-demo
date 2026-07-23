@@ -1,6 +1,6 @@
 import Layout from "@/components/Layout";
 import { Button } from "@/components/ui/button";
-import { Calendar, MapPin, Mountain } from "lucide-react";
+import { Calendar, Mountain } from "lucide-react";
 
 const parks = [
   {
@@ -91,11 +91,6 @@ export default function Parks() {
               </div>
 
               <div className="w-full lg:w-1/2 space-y-6">
-                <div className="flex items-center gap-2 text-secondary font-medium tracking-wide uppercase text-sm">
-                  <MapPin className="h-4 w-4" />
-                  <span>National Park</span>
-                </div>
-
                 <h2 className="text-4xl md:text-5xl font-serif font-bold text-primary leading-tight">
                   {park.name}
                 </h2>
