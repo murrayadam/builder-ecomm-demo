@@ -7,6 +7,7 @@ import Shop from "@/pages/Shop";
 import About from "@/pages/About";
 import Events from "@/pages/Events";
 import Parks from "@/pages/Parks";
+import Contact from "@/pages/Contact";
 import { BrowserRouter, MemoryRouter, Routes, Route as ReactRoute } from "react-router-dom";
 import { isPreviewing, isEditing } from "@builder.io/sdk-react";
 import { createRoot } from "react-dom/client";
@@ -22,6 +23,7 @@ function AppRoutes() {
       <ReactRoute path="/about" element={<About />} />
       <ReactRoute path="/events" element={<Events />} />
       <ReactRoute path="/parks" element={<Parks />} />
+      <ReactRoute path="/contact" element={<Contact />} />
       <ReactRoute path="*" element={<BuilderPage />} />
     </Routes>
   );

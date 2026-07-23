@@ -10,3 +10,21 @@
 export interface DemoResponse {
   message: string;
 }
+
+/**
+ * Request body for /api/contact
+ */
+export interface ContactRequest {
+  name: string;
+  email: string;
+  subject: string;
+  message: string;
+}
+
+/**
+ * Response type for /api/contact
+ */
+export interface ContactResponse {
+  success: boolean;
+  message: string;
+}
