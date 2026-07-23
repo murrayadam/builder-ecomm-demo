@@ -1,10 +1,6 @@
-import { useEffect, useState } from "react";
-import { Content, fetchOneEntry, isPreviewing } from "@builder.io/sdk-react";
 import Layout from "@/components/Layout";
 import { Button } from "@/components/ui/button";
-import { BUILDER_PUBLIC_API_KEY } from "@/lib/builder";
-import { customComponents } from "../../builder-registry";
-import { Calendar, Loader2, MapPin, Mountain } from "lucide-react";
+import { Calendar, MapPin, Mountain } from "lucide-react";
 
 const parks = [
   {
@@ -54,34 +50,8 @@ const parks = [
 ];
 
 export default function Parks() {
-  const [content, setContent] = useState<any>(null);
-  const [notFound, setNotFound] = useState(false);
-  const isPreview = isPreviewing();
-
-  useEffect(() => {
-    async function fetchContent() {
-      const content = await fetchOneEntry({
-        model: "page",
-        apiKey: BUILDER_PUBLIC_API_KEY,
-        userAttributes: {
-          urlPath: "/parks",
-        },
-      });
-
-      if (content) {
-        setContent(content);
-        setNotFound(false);
-      } else {
-        setNotFound(true);
-      }
-    }
-
-    fetchContent();
-  }, []);
-
-  // Default content to show if no Builder page is found
-  const defaultContent = (
-    <>
+  return (
+    <Layout>
       <section className="container mx-auto px-4 py-16 text-center">
         <h1 className="text-4xl font-serif font-bold text-primary mb-6">National Parks</h1>
         <div className="space-y-6 text-lg text-muted-foreground leading-relaxed">
@@ -166,31 +136,6 @@ export default function Parks() {
           </div>
         </section>
       ))}
-    </>
-  );
-
-  if (notFound && !isPreview) {
-    return (
-      <Layout>
-        {defaultContent}
-      </Layout>
-    );
-  }
-
-  return (
-    <Layout>
-      {content || isPreview ? (
-        <Content
-          model="page"
-          content={content}
-          apiKey={BUILDER_PUBLIC_API_KEY}
-          customComponents={customComponents}
-        />
-      ) : (
-        <div className="flex h-[50vh] w-full items-center justify-center">
-          <Loader2 className="h-8 w-8 animate-spin text-primary" />
-        </div>
-      )}
     </Layout>
   );
 }
