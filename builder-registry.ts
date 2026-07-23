@@ -1,1071 +1,781 @@
 /**
  * Builder.io Component Registry
  *
- * Registers all client/components/ui components for use in Builder.io's
- * visual editor (Publish). Uses the Gen2 SDK customComponents pattern.
+ * Registers content-editor-friendly blocks for use in Builder.io's visual
+ * editor. These are high-level, composed sections built for content marketers
+ * and non-technical editors — not the raw, developer-oriented UI primitives.
+ *
+ * Each component has meaningful inputs (headline, image, link, etc.) and
+ * renders a complete, on-brand section on its own.
  *
  * Import this array and pass it to the `customComponents` prop of <Content />.
  */
 
 import type { RegisteredComponent } from "@builder.io/sdk-react";
 
-// --- UI Component Imports ---
-import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "./client/components/ui/accordion";
-import { Alert, AlertDescription, AlertTitle } from "./client/components/ui/alert";
-import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "./client/components/ui/alert-dialog";
-import { AspectRatio } from "./client/components/ui/aspect-ratio";
-import { Avatar, AvatarFallback, AvatarImage } from "./client/components/ui/avatar";
-import { Badge } from "./client/components/ui/badge";
-import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator } from "./client/components/ui/breadcrumb";
-import { Button } from "./client/components/ui/button";
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "./client/components/ui/card";
-import { Checkbox } from "./client/components/ui/checkbox";
-import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "./client/components/ui/collapsible";
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "./client/components/ui/dialog";
-import { Input } from "./client/components/ui/input";
-import { Label } from "./client/components/ui/label";
-import { Pagination, PaginationContent, PaginationItem, PaginationNext, PaginationPrevious } from "./client/components/ui/pagination";
-import { Progress } from "./client/components/ui/progress";
-import { RadioGroup, RadioGroupItem } from "./client/components/ui/radio-group";
-import { ScrollArea } from "./client/components/ui/scroll-area";
-import { Separator } from "./client/components/ui/separator";
-import { Skeleton } from "./client/components/ui/skeleton";
-import { Slider } from "./client/components/ui/slider";
-import { Switch } from "./client/components/ui/switch";
-import { Table, TableBody, TableCaption, TableCell, TableFooter as TableFooterComp, TableHead, TableHeader, TableRow } from "./client/components/ui/table";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "./client/components/ui/tabs";
-import { BuilderTextarea } from "./client/components/ui/textarea-builder";
-import { Toggle } from "./client/components/ui/toggle";
-import { ToggleGroup, ToggleGroupItem } from "./client/components/ui/toggle-group";
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "./client/components/ui/tooltip";
+import {
+  AnnouncementBar,
+  CallToAction,
+  FAQSection,
+  FeatureSpotlight,
+  HeroBanner,
+  HighlightBadge,
+  LinkButton,
+  NewsletterSignup,
+  ProductCard,
+  ProductGrid,
+  RichTextSection,
+  SectionHeading,
+  StatBlock,
+  Testimonial,
+} from "./client/components/builder-blocks";
+
+// Reusable link sub-fields used by several blocks.
+const linkSubFields = [
+  { name: "label", type: "text", friendlyName: "Button Label", defaultValue: "Learn More" },
+  { name: "url", type: "url", friendlyName: "Link URL", defaultValue: "#" },
+  {
+    name: "style",
+    type: "text",
+    friendlyName: "Button Style",
+    defaultValue: "primary",
+    enum: [
+      { label: "Primary (solid)", value: "primary" },
+      { label: "Secondary", value: "secondary" },
+      { label: "Outline", value: "outline" },
+      { label: "Ghost", value: "ghost" },
+      { label: "Text link", value: "link" },
+    ],
+  },
+];
+
+const IMAGE_FILE_TYPES = ["jpeg", "jpg", "png", "webp", "svg"];
 
 export const customComponents: RegisteredComponent[] = [
-  // ─── Accordion ────────────────────────────────────────────────────────────
+  // ─── Hero Banner ───────────────────────────────────────────────────────────
   {
-    component: Accordion,
-    name: "Accordion",
-    canHaveChildren: true,
+    component: HeroBanner,
+    name: "Hero Banner",
+    friendlyName: "Hero Banner",
+    description: "Full-width hero section with background image, headline, and up to two call-to-action buttons.",
+    image:
+      "https://cdn.builder.io/api/v1/image/assets%2Fdefault%2Fhero-block.svg",
     inputs: [
       {
-        name: "type",
-        type: "text",
-        friendlyName: "Type",
-        defaultValue: "single",
-        enum: [
-          { label: "Single (one item open at a time)", value: "single" },
-          { label: "Multiple (many items open)", value: "multiple" },
-        ],
-        helperText: "Whether one or many items can be expanded",
-      },
-      {
-        name: "collapsible",
-        type: "boolean",
-        friendlyName: "Collapsible",
-        defaultValue: true,
-        helperText: "Allow closing an already-open item (single mode only)",
-      },
-    ],
-  },
-  {
-    component: AccordionItem,
-    name: "AccordionItem",
-    canHaveChildren: true,
-    inputs: [
-      {
-        name: "value",
-        type: "text",
-        friendlyName: "Value",
-        required: true,
-        defaultValue: "item-1",
-        helperText: "Unique identifier for this accordion item",
-      },
-    ],
-  },
-  {
-    component: AccordionTrigger,
-    name: "AccordionTrigger",
-    canHaveChildren: true,
-    inputs: [],
-  },
-  {
-    component: AccordionContent,
-    name: "AccordionContent",
-    canHaveChildren: true,
-    inputs: [],
-  },
-
-  // ─── Alert ────────────────────────────────────────────────────────────────
-  {
-    component: Alert,
-    name: "Alert",
-    canHaveChildren: true,
-    inputs: [
-      {
-        name: "variant",
-        type: "text",
-        friendlyName: "Variant",
-        defaultValue: "default",
-        enum: [
-          { label: "Default", value: "default" },
-          { label: "Destructive", value: "destructive" },
-        ],
-        helperText: "Visual style of the alert",
-      },
-    ],
-  },
-  {
-    component: AlertTitle,
-    name: "AlertTitle",
-    canHaveChildren: true,
-    inputs: [],
-  },
-  {
-    component: AlertDescription,
-    name: "AlertDescription",
-    canHaveChildren: true,
-    inputs: [],
-  },
-
-  // ─── Alert Dialog ─────────────────────────────────────────────────────────
-  {
-    component: AlertDialog,
-    name: "AlertDialog",
-    canHaveChildren: true,
-    inputs: [
-      {
-        name: "defaultOpen",
-        type: "boolean",
-        friendlyName: "Default Open",
-        defaultValue: false,
-      },
-    ],
-  },
-  {
-    component: AlertDialogTrigger,
-    name: "AlertDialogTrigger",
-    canHaveChildren: true,
-    inputs: [],
-  },
-  {
-    component: AlertDialogContent,
-    name: "AlertDialogContent",
-    canHaveChildren: true,
-    inputs: [],
-  },
-  {
-    component: AlertDialogHeader,
-    name: "AlertDialogHeader",
-    canHaveChildren: true,
-    inputs: [],
-  },
-  {
-    component: AlertDialogFooter,
-    name: "AlertDialogFooter",
-    canHaveChildren: true,
-    inputs: [],
-  },
-  {
-    component: AlertDialogTitle,
-    name: "AlertDialogTitle",
-    canHaveChildren: true,
-    inputs: [],
-  },
-  {
-    component: AlertDialogDescription,
-    name: "AlertDialogDescription",
-    canHaveChildren: true,
-    inputs: [],
-  },
-  {
-    component: AlertDialogAction,
-    name: "AlertDialogAction",
-    canHaveChildren: true,
-    inputs: [],
-  },
-  {
-    component: AlertDialogCancel,
-    name: "AlertDialogCancel",
-    canHaveChildren: true,
-    inputs: [],
-  },
-
-  // ─── Aspect Ratio ─────────────────────────────────────────────────────────
-  {
-    component: AspectRatio,
-    name: "AspectRatio",
-    canHaveChildren: true,
-    inputs: [
-      {
-        name: "ratio",
-        type: "number",
-        friendlyName: "Ratio",
-        defaultValue: 16 / 9,
-        helperText: "Width to height ratio (e.g. 16/9 = 1.77)",
-      },
-    ],
-  },
-
-  // ─── Avatar ───────────────────────────────────────────────────────────────
-  {
-    component: Avatar,
-    name: "Avatar",
-    canHaveChildren: true,
-    inputs: [],
-  },
-  {
-    component: AvatarImage,
-    name: "AvatarImage",
-    inputs: [
-      {
-        name: "src",
+        name: "backgroundImage",
         type: "file",
-        friendlyName: "Image",
-        allowedFileTypes: ["jpeg", "jpg", "png", "webp", "svg"],
-        helperText: "Avatar image source URL",
+        friendlyName: "Background Image",
+        allowedFileTypes: IMAGE_FILE_TYPES,
+        helperText: "Full-bleed image behind the text",
       },
       {
-        name: "alt",
+        name: "eyebrow",
         type: "text",
-        friendlyName: "Alt Text",
-        defaultValue: "Avatar",
-        helperText: "Accessible description of the image",
+        friendlyName: "Eyebrow / Tag",
+        defaultValue: "New Collection",
+        helperText: "Small tagline above the headline",
       },
-    ],
-  },
-  {
-    component: AvatarFallback,
-    name: "AvatarFallback",
-    canHaveChildren: true,
-    inputs: [],
-  },
-
-  // ─── Badge ────────────────────────────────────────────────────────────────
-  {
-    component: Badge,
-    name: "Badge",
-    canHaveChildren: true,
-    inputs: [
       {
-        name: "variant",
+        name: "headline",
         type: "text",
-        friendlyName: "Variant",
-        defaultValue: "default",
+        friendlyName: "Headline",
+        defaultValue: "Find Your Path in the Wild",
+        required: true,
+      },
+      {
+        name: "description",
+        type: "longText",
+        friendlyName: "Description",
+        defaultValue:
+          "Premium gear inspired by the rugged beauty of the outdoors. Lightweight, durable, and ready for your next adventure.",
+      },
+      {
+        name: "primaryCta",
+        type: "object",
+        friendlyName: "Primary Button",
+        subFields: linkSubFields,
+        defaultValue: { label: "Shop Now", url: "/shop", style: "primary" },
+      },
+      {
+        name: "secondaryCta",
+        type: "object",
+        friendlyName: "Secondary Button",
+        subFields: linkSubFields,
+        defaultValue: { label: "Learn More", url: "/about", style: "outline" },
+      },
+      {
+        name: "height",
+        type: "text",
+        friendlyName: "Height",
+        defaultValue: "large",
         enum: [
-          { label: "Default", value: "default" },
-          { label: "Secondary", value: "secondary" },
-          { label: "Destructive", value: "destructive" },
-          { label: "Outline", value: "outline" },
+          { label: "Small (50vh)", value: "small" },
+          { label: "Medium (65vh)", value: "medium" },
+          { label: "Large (80vh)", value: "large" },
         ],
-        helperText: "Visual style of the badge",
+      },
+      {
+        name: "alignment",
+        type: "text",
+        friendlyName: "Text Alignment",
+        defaultValue: "left",
+        enum: [
+          { label: "Left", value: "left" },
+          { label: "Center", value: "center" },
+        ],
+      },
+      {
+        name: "overlayOpacity",
+        type: "number",
+        friendlyName: "Image Darkness (%)",
+        defaultValue: 20,
+        min: 0,
+        max: 90,
+        helperText: "Darkens the background image for text legibility",
+        advanced: true,
       },
     ],
   },
 
-  // ─── Breadcrumb ───────────────────────────────────────────────────────────
+  // ─── Announcement Bar ──────────────────────────────────────────────────────
   {
-    component: Breadcrumb,
-    name: "Breadcrumb",
-    canHaveChildren: true,
-    inputs: [],
-  },
-  {
-    component: BreadcrumbList,
-    name: "BreadcrumbList",
-    canHaveChildren: true,
-    inputs: [],
-  },
-  {
-    component: BreadcrumbItem,
-    name: "BreadcrumbItem",
-    canHaveChildren: true,
-    inputs: [],
-  },
-  {
-    component: BreadcrumbLink,
-    name: "BreadcrumbLink",
-    canHaveChildren: true,
+    component: AnnouncementBar,
+    name: "Announcement Bar",
+    friendlyName: "Announcement Bar",
+    description: "Thin banner at the top of the page for promotions or important messages.",
     inputs: [
       {
-        name: "href",
+        name: "message",
+        type: "text",
+        friendlyName: "Message",
+        defaultValue: "Free shipping on orders over $75",
+        required: true,
+      },
+      {
+        name: "linkLabel",
+        type: "text",
+        friendlyName: "Link Label",
+        defaultValue: "Shop now",
+      },
+      {
+        name: "linkUrl",
         type: "url",
         friendlyName: "Link URL",
-        helperText: "Destination URL of this breadcrumb step",
+        defaultValue: "/shop",
       },
-    ],
-  },
-  {
-    component: BreadcrumbPage,
-    name: "BreadcrumbPage",
-    canHaveChildren: true,
-    inputs: [],
-  },
-  {
-    component: BreadcrumbSeparator,
-    name: "BreadcrumbSeparator",
-    inputs: [],
-  },
-
-  // ─── Button ───────────────────────────────────────────────────────────────
-  {
-    component: Button,
-    name: "Button",
-    canHaveChildren: true,
-    inputs: [
       {
-        name: "variant",
+        name: "tone",
         type: "text",
-        friendlyName: "Variant",
-        defaultValue: "default",
+        friendlyName: "Color",
+        defaultValue: "primary",
         enum: [
-          { label: "Default", value: "default" },
-          { label: "Destructive", value: "destructive" },
-          { label: "Outline", value: "outline" },
+          { label: "Primary", value: "primary" },
           { label: "Secondary", value: "secondary" },
-          { label: "Ghost", value: "ghost" },
-          { label: "Link", value: "link" },
+          { label: "Dark", value: "dark" },
+        ],
+      },
+    ],
+  },
+
+  // ─── Section Heading ───────────────────────────────────────────────────────
+  {
+    component: SectionHeading,
+    name: "Section Heading",
+    friendlyName: "Section Heading",
+    description: "Reusable section title with optional eyebrow, description, and view-all link.",
+    inputs: [
+      {
+        name: "eyebrow",
+        type: "text",
+        friendlyName: "Eyebrow",
+        helperText: "Small tagline above the title",
+      },
+      {
+        name: "title",
+        type: "text",
+        friendlyName: "Title",
+        defaultValue: "Section Title",
+        required: true,
+      },
+      {
+        name: "description",
+        type: "longText",
+        friendlyName: "Description",
+      },
+      {
+        name: "alignment",
+        type: "text",
+        friendlyName: "Alignment",
+        defaultValue: "left",
+        enum: [
+          { label: "Left", value: "left" },
+          { label: "Center", value: "center" },
         ],
       },
       {
-        name: "size",
+        name: "viewAllLabel",
         type: "text",
-        friendlyName: "Size",
+        friendlyName: "View All Link Label",
+        helperText: "Optional link shown on the right",
+      },
+      {
+        name: "viewAllUrl",
+        type: "url",
+        friendlyName: "View All URL",
+      },
+    ],
+  },
+
+  // ─── Product Card ──────────────────────────────────────────────────────────
+  {
+    component: ProductCard,
+    name: "Product Card",
+    friendlyName: "Product Card",
+    description: "Single product tile with image, name, description, and price.",
+    inputs: [
+      {
+        name: "image",
+        type: "file",
+        friendlyName: "Product Image",
+        allowedFileTypes: IMAGE_FILE_TYPES,
+        required: true,
+      },
+      {
+        name: "imageAlt",
+        type: "text",
+        friendlyName: "Image Alt Text",
+        helperText: "Describe the image for screen readers",
+      },
+      {
+        name: "name",
+        type: "text",
+        friendlyName: "Product Name",
+        defaultValue: "Product Name",
+        required: true,
+      },
+      {
+        name: "description",
+        type: "text",
+        friendlyName: "Short Description",
+        defaultValue: "One-line product summary",
+      },
+      {
+        name: "price",
+        type: "text",
+        friendlyName: "Price",
+        defaultValue: "$99.00",
+      },
+      {
+        name: "badge",
+        type: "text",
+        friendlyName: "Badge",
+        helperText: 'Optional tag like "Best Seller" or "New"',
+      },
+      {
+        name: "productUrl",
+        type: "url",
+        friendlyName: "Product Link",
+        helperText: "Where the card links to",
+      },
+    ],
+  },
+
+  // ─── Product Grid ──────────────────────────────────────────────────────────
+  {
+    component: ProductGrid,
+    name: "Product Grid",
+    friendlyName: "Product Grid",
+    description: "Section with a heading and a grid of product cards.",
+    inputs: [
+      {
+        name: "eyebrow",
+        type: "text",
+        friendlyName: "Eyebrow",
+        defaultValue: "Featured",
+      },
+      {
+        name: "title",
+        type: "text",
+        friendlyName: "Title",
+        defaultValue: "Most Popular",
+        required: true,
+      },
+      {
+        name: "description",
+        type: "longText",
+        friendlyName: "Description",
+        defaultValue: "Essentials for every adventurer's kit.",
+      },
+      {
+        name: "viewAllLabel",
+        type: "text",
+        friendlyName: "View All Link Label",
+        defaultValue: "View all products",
+      },
+      {
+        name: "viewAllUrl",
+        type: "url",
+        friendlyName: "View All URL",
+        defaultValue: "/shop",
+      },
+      {
+        name: "background",
+        type: "text",
+        friendlyName: "Background",
         defaultValue: "default",
         enum: [
-          { label: "Default", value: "default" },
-          { label: "Small", value: "sm" },
-          { label: "Large", value: "lg" },
-          { label: "Icon", value: "icon" },
+          { label: "White", value: "default" },
+          { label: "Muted", value: "muted" },
         ],
       },
       {
-        name: "disabled",
-        type: "boolean",
-        friendlyName: "Disabled",
-        defaultValue: false,
-      },
-    ],
-  },
-
-  // ─── Card ─────────────────────────────────────────────────────────────────
-  {
-    component: Card,
-    name: "Card",
-    canHaveChildren: true,
-    inputs: [],
-  },
-  {
-    component: CardHeader,
-    name: "CardHeader",
-    canHaveChildren: true,
-    inputs: [],
-  },
-  {
-    component: CardTitle,
-    name: "CardTitle",
-    canHaveChildren: true,
-    inputs: [],
-  },
-  {
-    component: CardDescription,
-    name: "CardDescription",
-    canHaveChildren: true,
-    inputs: [],
-  },
-  {
-    component: CardContent,
-    name: "CardContent",
-    canHaveChildren: true,
-    inputs: [],
-  },
-  {
-    component: CardFooter,
-    name: "CardFooter",
-    canHaveChildren: true,
-    inputs: [],
-  },
-
-  // ─── Checkbox ─────────────────────────────────────────────────────────────
-  {
-    component: Checkbox,
-    name: "Checkbox",
-    inputs: [
-      {
-        name: "defaultChecked",
-        type: "boolean",
-        friendlyName: "Default Checked",
-        defaultValue: false,
-      },
-      {
-        name: "disabled",
-        type: "boolean",
-        friendlyName: "Disabled",
-        defaultValue: false,
-      },
-      {
-        name: "id",
-        type: "text",
-        friendlyName: "ID",
-        helperText: "Used to associate with a Label's htmlFor",
-        advanced: true,
-      },
-    ],
-  },
-
-  // ─── Collapsible ──────────────────────────────────────────────────────────
-  {
-    component: Collapsible,
-    name: "Collapsible",
-    canHaveChildren: true,
-    inputs: [
-      {
-        name: "defaultOpen",
-        type: "boolean",
-        friendlyName: "Default Open",
-        defaultValue: false,
-      },
-      {
-        name: "disabled",
-        type: "boolean",
-        friendlyName: "Disabled",
-        defaultValue: false,
-      },
-    ],
-  },
-  {
-    component: CollapsibleTrigger,
-    name: "CollapsibleTrigger",
-    canHaveChildren: true,
-    inputs: [],
-  },
-  {
-    component: CollapsibleContent,
-    name: "CollapsibleContent",
-    canHaveChildren: true,
-    inputs: [],
-  },
-
-  // ─── Dialog ───────────────────────────────────────────────────────────────
-  {
-    component: Dialog,
-    name: "Dialog",
-    canHaveChildren: true,
-    inputs: [
-      {
-        name: "defaultOpen",
-        type: "boolean",
-        friendlyName: "Default Open",
-        defaultValue: false,
-      },
-    ],
-  },
-  {
-    component: DialogTrigger,
-    name: "DialogTrigger",
-    canHaveChildren: true,
-    inputs: [],
-  },
-  {
-    component: DialogContent,
-    name: "DialogContent",
-    canHaveChildren: true,
-    inputs: [],
-  },
-  {
-    component: DialogHeader,
-    name: "DialogHeader",
-    canHaveChildren: true,
-    inputs: [],
-  },
-  {
-    component: DialogFooter,
-    name: "DialogFooter",
-    canHaveChildren: true,
-    inputs: [],
-  },
-  {
-    component: DialogTitle,
-    name: "DialogTitle",
-    canHaveChildren: true,
-    inputs: [],
-  },
-  {
-    component: DialogDescription,
-    name: "DialogDescription",
-    canHaveChildren: true,
-    inputs: [],
-  },
-
-  // ─── Input ────────────────────────────────────────────────────────────────
-  {
-    component: Input,
-    name: "Input",
-    inputs: [
-      {
-        name: "type",
-        type: "text",
-        friendlyName: "Input Type",
-        defaultValue: "text",
-        enum: [
-          { label: "Text", value: "text" },
-          { label: "Email", value: "email" },
-          { label: "Password", value: "password" },
-          { label: "Number", value: "number" },
-          { label: "Search", value: "search" },
-          { label: "Tel", value: "tel" },
-          { label: "URL", value: "url" },
-        ],
-      },
-      {
-        name: "placeholder",
-        type: "text",
-        friendlyName: "Placeholder",
-        defaultValue: "",
-        helperText: "Ghost text shown when empty",
-      },
-      {
-        name: "disabled",
-        type: "boolean",
-        friendlyName: "Disabled",
-        defaultValue: false,
-      },
-    ],
-  },
-
-  // ─── Label ────────────────────────────────────────────────────────────────
-  {
-    component: Label,
-    name: "Label",
-    canHaveChildren: true,
-    inputs: [
-      {
-        name: "htmlFor",
-        type: "text",
-        friendlyName: "For (htmlFor)",
-        helperText: "ID of the input this label is associated with",
-      },
-    ],
-  },
-
-  // ─── Pagination ───────────────────────────────────────────────────────────
-  {
-    component: Pagination,
-    name: "Pagination",
-    canHaveChildren: true,
-    inputs: [],
-  },
-  {
-    component: PaginationContent,
-    name: "PaginationContent",
-    canHaveChildren: true,
-    inputs: [],
-  },
-  {
-    component: PaginationItem,
-    name: "PaginationItem",
-    canHaveChildren: true,
-    inputs: [],
-  },
-  {
-    component: PaginationPrevious,
-    name: "PaginationPrevious",
-    inputs: [
-      {
-        name: "href",
-        type: "url",
-        friendlyName: "Previous URL",
-      },
-    ],
-  },
-  {
-    component: PaginationNext,
-    name: "PaginationNext",
-    inputs: [
-      {
-        name: "href",
-        type: "url",
-        friendlyName: "Next URL",
-      },
-    ],
-  },
-
-  // ─── Progress ─────────────────────────────────────────────────────────────
-  {
-    component: Progress,
-    name: "Progress",
-    inputs: [
-      {
-        name: "value",
-        type: "number",
-        friendlyName: "Value",
-        defaultValue: 50,
-        min: 0,
-        max: 100,
-        helperText: "Progress percentage (0–100)",
-      },
-    ],
-  },
-
-  // ─── RadioGroup ───────────────────────────────────────────────────────────
-  {
-    component: RadioGroup,
-    name: "RadioGroup",
-    canHaveChildren: true,
-    inputs: [
-      {
-        name: "defaultValue",
-        type: "text",
-        friendlyName: "Default Value",
-        helperText: "Value of the initially selected radio item",
-      },
-      {
-        name: "disabled",
-        type: "boolean",
-        friendlyName: "Disabled",
-        defaultValue: false,
-      },
-    ],
-  },
-  {
-    component: RadioGroupItem,
-    name: "RadioGroupItem",
-    inputs: [
-      {
-        name: "value",
-        type: "text",
-        friendlyName: "Value",
-        required: true,
-        defaultValue: "option-1",
-        helperText: "Unique value for this radio option",
-      },
-      {
-        name: "disabled",
-        type: "boolean",
-        friendlyName: "Disabled",
-        defaultValue: false,
-      },
-      {
-        name: "id",
-        type: "text",
-        friendlyName: "ID",
-        helperText: "Used to associate with a Label's htmlFor",
-        advanced: true,
-      },
-    ],
-  },
-
-  // ─── ScrollArea ───────────────────────────────────────────────────────────
-  {
-    component: ScrollArea,
-    name: "ScrollArea",
-    canHaveChildren: true,
-    inputs: [],
-  },
-
-  // ─── Separator ────────────────────────────────────────────────────────────
-  {
-    component: Separator,
-    name: "Separator",
-    inputs: [
-      {
-        name: "orientation",
-        type: "text",
-        friendlyName: "Orientation",
-        defaultValue: "horizontal",
-        enum: [
-          { label: "Horizontal", value: "horizontal" },
-          { label: "Vertical", value: "vertical" },
-        ],
-      },
-    ],
-  },
-
-  // ─── Skeleton ─────────────────────────────────────────────────────────────
-  {
-    component: Skeleton,
-    name: "Skeleton",
-    inputs: [
-      {
-        name: "className",
-        type: "text",
-        friendlyName: "Custom Classes",
-        defaultValue: "h-4 w-full",
-        helperText: "Tailwind classes to set width and height",
-        advanced: true,
-      },
-    ],
-  },
-
-  // ─── Slider ───────────────────────────────────────────────────────────────
-  {
-    component: Slider,
-    name: "Slider",
-    inputs: [
-      {
-        name: "min",
-        type: "number",
-        friendlyName: "Minimum",
-        defaultValue: 0,
-      },
-      {
-        name: "max",
-        type: "number",
-        friendlyName: "Maximum",
-        defaultValue: 100,
-      },
-      {
-        name: "step",
-        type: "number",
-        friendlyName: "Step",
-        defaultValue: 1,
-        helperText: "Increment between each selectable value",
-      },
-      {
-        name: "defaultValue",
+        name: "products",
         type: "list",
-        friendlyName: "Default Value",
-        defaultValue: [50],
-        subFields: [
+        friendlyName: "Products",
+        defaultValue: [
           {
-            name: "value",
-            type: "number",
+            image: "https://images.pexels.com/photos/17827044/pexels-photo-17827044.jpeg",
+            name: "Alpine Expedition Tent",
+            description: "Ultralight 2-person shelter",
+            price: "$299.00",
+            badge: "Best Seller",
+            productUrl: "/shop",
+          },
+          {
+            image: "https://images.pexels.com/photos/2416871/pexels-photo-2416871.jpeg",
+            name: "Summit Hiker Backpack",
+            description: "45L multi-day pack",
+            price: "$149.00",
+            productUrl: "/shop",
+          },
+          {
+            image: "https://images.pexels.com/photos/20425232/pexels-photo-20425232.jpeg",
+            name: "Trailblazer Multi-Tool",
+            description: "Stainless steel essential",
+            price: "$45.00",
+            productUrl: "/shop",
           },
         ],
-        helperText: "Initial slider value(s)",
-      },
-      {
-        name: "disabled",
-        type: "boolean",
-        friendlyName: "Disabled",
-        defaultValue: false,
-      },
-    ],
-  },
-
-  // ─── Switch ───────────────────────────────────────────────────────────────
-  {
-    component: Switch,
-    name: "Switch",
-    inputs: [
-      {
-        name: "defaultChecked",
-        type: "boolean",
-        friendlyName: "Default Checked",
-        defaultValue: false,
-      },
-      {
-        name: "disabled",
-        type: "boolean",
-        friendlyName: "Disabled",
-        defaultValue: false,
-      },
-      {
-        name: "id",
-        type: "text",
-        friendlyName: "ID",
-        helperText: "Used to associate with a Label's htmlFor",
-        advanced: true,
+        subFields: [
+          {
+            name: "image",
+            type: "file",
+            friendlyName: "Product Image",
+            allowedFileTypes: IMAGE_FILE_TYPES,
+          },
+          { name: "name", type: "text", friendlyName: "Name" },
+          { name: "description", type: "text", friendlyName: "Description" },
+          { name: "price", type: "text", friendlyName: "Price" },
+          { name: "badge", type: "text", friendlyName: "Badge" },
+          { name: "productUrl", type: "url", friendlyName: "Product Link" },
+        ],
       },
     ],
   },
 
-  // ─── Table ────────────────────────────────────────────────────────────────
+  // ─── Feature Spotlight ─────────────────────────────────────────────────────
   {
-    component: Table,
-    name: "Table",
-    canHaveChildren: true,
-    inputs: [],
-  },
-  {
-    component: TableHeader,
-    name: "TableHeader",
-    canHaveChildren: true,
-    inputs: [],
-  },
-  {
-    component: TableBody,
-    name: "TableBody",
-    canHaveChildren: true,
-    inputs: [],
-  },
-  {
-    component: TableFooterComp,
-    name: "TableFooter",
-    canHaveChildren: true,
-    inputs: [],
-  },
-  {
-    component: TableRow,
-    name: "TableRow",
-    canHaveChildren: true,
-    inputs: [],
-  },
-  {
-    component: TableHead,
-    name: "TableHead",
-    canHaveChildren: true,
-    inputs: [],
-  },
-  {
-    component: TableCell,
-    name: "TableCell",
-    canHaveChildren: true,
-    inputs: [],
-  },
-  {
-    component: TableCaption,
-    name: "TableCaption",
-    canHaveChildren: true,
-    inputs: [],
-  },
-
-  // ─── Tabs ─────────────────────────────────────────────────────────────────
-  {
-    component: Tabs,
-    name: "Tabs",
-    canHaveChildren: true,
+    component: FeatureSpotlight,
+    name: "Feature Spotlight",
+    friendlyName: "Feature Spotlight",
+    description: "Side-by-side image and text section with an optional feature list and call to action.",
     inputs: [
       {
-        name: "defaultValue",
-        type: "text",
-        friendlyName: "Default Tab",
-        defaultValue: "tab-1",
-        helperText: "Value of the tab open by default",
-      },
-    ],
-  },
-  {
-    component: TabsList,
-    name: "TabsList",
-    canHaveChildren: true,
-    inputs: [],
-  },
-  {
-    component: TabsTrigger,
-    name: "TabsTrigger",
-    canHaveChildren: true,
-    inputs: [
-      {
-        name: "value",
-        type: "text",
-        friendlyName: "Value",
+        name: "image",
+        type: "file",
+        friendlyName: "Image",
+        allowedFileTypes: IMAGE_FILE_TYPES,
         required: true,
-        defaultValue: "tab-1",
-        helperText: "Must match the value in the corresponding TabsContent",
       },
       {
-        name: "disabled",
-        type: "boolean",
-        friendlyName: "Disabled",
-        defaultValue: false,
-      },
-    ],
-  },
-  {
-    component: TabsContent,
-    name: "TabsContent",
-    canHaveChildren: true,
-    inputs: [
-      {
-        name: "value",
+        name: "imageAlt",
         type: "text",
-        friendlyName: "Value",
+        friendlyName: "Image Alt Text",
+      },
+      {
+        name: "eyebrow",
+        type: "text",
+        friendlyName: "Eyebrow",
+        defaultValue: "Featured Destination",
+      },
+      {
+        name: "title",
+        type: "text",
+        friendlyName: "Title",
+        defaultValue: "A Story Worth Telling",
         required: true,
-        defaultValue: "tab-1",
-        helperText: "Must match the value in the corresponding TabsTrigger",
-      },
-    ],
-  },
-
-  // ─── Textarea ─────────────────────────────────────────────────────────────
-  {
-    component: BuilderTextarea,
-    name: "Textarea",
-    canHaveChildren: true,
-    inputs: [
-      {
-        name: "placeholder",
-        type: "text",
-        friendlyName: "Placeholder",
-        defaultValue: "",
-        helperText: "Ghost text shown when empty",
       },
       {
-        name: "defaultValue",
-        type: "text",
-        friendlyName: "Default Value",
-        defaultValue: "",
-        helperText: "Initial text content",
+        name: "description",
+        type: "longText",
+        friendlyName: "Description",
       },
       {
-        name: "rows",
-        type: "number",
-        friendlyName: "Rows",
-        defaultValue: 3,
-        helperText: "Visible height in rows",
-      },
-      {
-        name: "disabled",
-        type: "boolean",
-        friendlyName: "Disabled",
-        defaultValue: false,
-      },
-    ],
-  },
-
-  // ─── Toggle ───────────────────────────────────────────────────────────────
-  {
-    component: Toggle,
-    name: "Toggle",
-    canHaveChildren: true,
-    inputs: [
-      {
-        name: "variant",
-        type: "text",
-        friendlyName: "Variant",
-        defaultValue: "default",
-        enum: [
-          { label: "Default", value: "default" },
-          { label: "Outline", value: "outline" },
+        name: "features",
+        type: "list",
+        friendlyName: "Feature List",
+        subFields: [
+          { name: "title", type: "text", friendlyName: "Title" },
+          { name: "description", type: "text", friendlyName: "Description" },
+        ],
+        defaultValue: [
+          { title: "Feature One", description: "Short supporting detail" },
+          { title: "Feature Two", description: "Short supporting detail" },
         ],
       },
       {
-        name: "size",
+        name: "cta",
+        type: "object",
+        friendlyName: "Call To Action",
+        subFields: linkSubFields,
+        defaultValue: { label: "Learn More", url: "#", style: "primary" },
+      },
+      {
+        name: "imagePosition",
         type: "text",
-        friendlyName: "Size",
-        defaultValue: "default",
+        friendlyName: "Image Position",
+        defaultValue: "left",
         enum: [
-          { label: "Default", value: "default" },
-          { label: "Small", value: "sm" },
-          { label: "Large", value: "lg" },
-        ],
-      },
-      {
-        name: "defaultPressed",
-        type: "boolean",
-        friendlyName: "Default Pressed",
-        defaultValue: false,
-      },
-      {
-        name: "disabled",
-        type: "boolean",
-        friendlyName: "Disabled",
-        defaultValue: false,
-      },
-    ],
-  },
-
-  // ─── ToggleGroup ──────────────────────────────────────────────────────────
-  {
-    component: ToggleGroup,
-    name: "ToggleGroup",
-    canHaveChildren: true,
-    inputs: [
-      {
-        name: "type",
-        type: "text",
-        friendlyName: "Selection Type",
-        defaultValue: "single",
-        enum: [
-          { label: "Single", value: "single" },
-          { label: "Multiple", value: "multiple" },
-        ],
-      },
-      {
-        name: "variant",
-        type: "text",
-        friendlyName: "Variant",
-        defaultValue: "default",
-        enum: [
-          { label: "Default", value: "default" },
-          { label: "Outline", value: "outline" },
-        ],
-      },
-      {
-        name: "size",
-        type: "text",
-        friendlyName: "Size",
-        defaultValue: "default",
-        enum: [
-          { label: "Default", value: "default" },
-          { label: "Small", value: "sm" },
-          { label: "Large", value: "lg" },
-        ],
-      },
-    ],
-  },
-  {
-    component: ToggleGroupItem,
-    name: "ToggleGroupItem",
-    canHaveChildren: true,
-    inputs: [
-      {
-        name: "value",
-        type: "text",
-        friendlyName: "Value",
-        required: true,
-        defaultValue: "item-1",
-        helperText: "Unique identifier for this toggle option",
-      },
-      {
-        name: "disabled",
-        type: "boolean",
-        friendlyName: "Disabled",
-        defaultValue: false,
-      },
-    ],
-  },
-
-  // ─── Tooltip ──────────────────────────────────────────────────────────────
-  {
-    component: TooltipProvider,
-    name: "TooltipProvider",
-    canHaveChildren: true,
-    inputs: [
-      {
-        name: "delayDuration",
-        type: "number",
-        friendlyName: "Delay Duration (ms)",
-        defaultValue: 700,
-        helperText: "Milliseconds before tooltip opens",
-      },
-    ],
-  },
-  {
-    component: Tooltip,
-    name: "Tooltip",
-    canHaveChildren: true,
-    inputs: [],
-  },
-  {
-    component: TooltipTrigger,
-    name: "TooltipTrigger",
-    canHaveChildren: true,
-    inputs: [],
-  },
-  {
-    component: TooltipContent,
-    name: "TooltipContent",
-    canHaveChildren: true,
-    inputs: [
-      {
-        name: "side",
-        type: "text",
-        friendlyName: "Side",
-        defaultValue: "top",
-        enum: [
-          { label: "Top", value: "top" },
-          { label: "Bottom", value: "bottom" },
           { label: "Left", value: "left" },
           { label: "Right", value: "right" },
         ],
-        helperText: "Which side of the trigger the tooltip appears on",
+      },
+    ],
+  },
+
+  // ─── Call To Action ────────────────────────────────────────────────────────
+  {
+    component: CallToAction,
+    name: "Call To Action",
+    friendlyName: "Call To Action",
+    description: "Full-width band with a headline, supporting text, and a single button.",
+    inputs: [
+      {
+        name: "title",
+        type: "text",
+        friendlyName: "Title",
+        defaultValue: "Join the Adventure",
+        required: true,
       },
       {
-        name: "sideOffset",
+        name: "description",
+        type: "longText",
+        friendlyName: "Description",
+        defaultValue: "Connect with fellow enthusiasts and find your community.",
+      },
+      {
+        name: "primaryCta",
+        type: "object",
+        friendlyName: "Button",
+        subFields: linkSubFields,
+        defaultValue: { label: "Get Started", url: "#", style: "secondary" },
+      },
+      {
+        name: "background",
+        type: "text",
+        friendlyName: "Background Color",
+        defaultValue: "primary",
+        enum: [
+          { label: "Primary (Pine)", value: "primary" },
+          { label: "Secondary (Terracotta)", value: "secondary" },
+          { label: "Muted (Cream)", value: "muted" },
+        ],
+      },
+    ],
+  },
+
+  // ─── Testimonial ───────────────────────────────────────────────────────────
+  {
+    component: Testimonial,
+    name: "Testimonial",
+    friendlyName: "Testimonial",
+    description: "Customer quote card with author details and optional star rating.",
+    inputs: [
+      {
+        name: "quote",
+        type: "longText",
+        friendlyName: "Quote",
+        defaultValue: "This is the best gear I've ever owned — it truly changed how I explore.",
+        required: true,
+      },
+      {
+        name: "authorName",
+        type: "text",
+        friendlyName: "Author Name",
+        defaultValue: "Jane Explorer",
+      },
+      {
+        name: "authorTitle",
+        type: "text",
+        friendlyName: "Author Title / Location",
+        defaultValue: "Verified Customer",
+      },
+      {
+        name: "authorImage",
+        type: "file",
+        friendlyName: "Author Photo",
+        allowedFileTypes: IMAGE_FILE_TYPES,
+      },
+      {
+        name: "rating",
         type: "number",
-        friendlyName: "Side Offset",
-        defaultValue: 4,
-        helperText: "Distance in pixels from the trigger",
+        friendlyName: "Star Rating",
+        defaultValue: 5,
+        min: 0,
+        max: 5,
+      },
+    ],
+  },
+
+  // ─── FAQ Section ───────────────────────────────────────────────────────────
+  {
+    component: FAQSection,
+    name: "FAQ Section",
+    friendlyName: "FAQ Section",
+    description: "Frequently asked questions section with expandable answers.",
+    inputs: [
+      {
+        name: "eyebrow",
+        type: "text",
+        friendlyName: "Eyebrow",
+        defaultValue: "Support",
+      },
+      {
+        name: "title",
+        type: "text",
+        friendlyName: "Title",
+        defaultValue: "Frequently Asked Questions",
+        required: true,
+      },
+      {
+        name: "description",
+        type: "longText",
+        friendlyName: "Description",
+      },
+      {
+        name: "items",
+        type: "list",
+        friendlyName: "Questions",
+        subFields: [
+          { name: "question", type: "text", friendlyName: "Question" },
+          { name: "answer", type: "longText", friendlyName: "Answer" },
+        ],
+        defaultValue: [
+          {
+            question: "How long does shipping take?",
+            answer: "Most orders ship within 2 business days and arrive in 3–5 business days.",
+          },
+          {
+            question: "What is your return policy?",
+            answer: "We accept returns within 30 days of delivery for a full refund.",
+          },
+        ],
+      },
+    ],
+  },
+
+  // ─── Newsletter Signup ─────────────────────────────────────────────────────
+  {
+    component: NewsletterSignup,
+    name: "Newsletter Signup",
+    friendlyName: "Newsletter Signup",
+    description: "Email capture section with a heading and description.",
+    inputs: [
+      {
+        name: "title",
+        type: "text",
+        friendlyName: "Title",
+        defaultValue: "Stay in the Loop",
+        required: true,
+      },
+      {
+        name: "description",
+        type: "longText",
+        friendlyName: "Description",
+        defaultValue: "Subscribe for trail guides, gear drops, and exclusive offers.",
+      },
+      {
+        name: "placeholder",
+        type: "text",
+        friendlyName: "Input Placeholder",
+        defaultValue: "Enter your email",
+      },
+      {
+        name: "buttonLabel",
+        type: "text",
+        friendlyName: "Button Label",
+        defaultValue: "Subscribe",
+      },
+      {
+        name: "background",
+        type: "text",
+        friendlyName: "Background",
+        defaultValue: "muted",
+        enum: [
+          { label: "Muted", value: "muted" },
+          { label: "Primary", value: "primary" },
+          { label: "White", value: "default" },
+        ],
+      },
+    ],
+  },
+
+  // ─── Stat Block ────────────────────────────────────────────────────────────
+  {
+    component: StatBlock,
+    name: "Stat Block",
+    friendlyName: "Stat Block",
+    description: "Row of large numbers with labels — great for showing impact or milestones.",
+    inputs: [
+      {
+        name: "stats",
+        type: "list",
+        friendlyName: "Stats",
+        subFields: [
+          { name: "value", type: "text", friendlyName: "Value" },
+          { name: "label", type: "text", friendlyName: "Label" },
+          { name: "description", type: "text", friendlyName: "Description" },
+        ],
+        defaultValue: [
+          { value: "10K+", label: "Happy Customers", description: "Across all 50 states" },
+          { value: "50+", label: "Trail Guides", description: "Written by experts" },
+          { value: "4.9", label: "Avg Rating", description: "From verified reviews" },
+          { value: "100%", label: "Guarantee", description: "Or your money back" },
+        ],
+      },
+      {
+        name: "background",
+        type: "text",
+        friendlyName: "Background",
+        defaultValue: "default",
+        enum: [
+          { label: "White", value: "default" },
+          { label: "Muted", value: "muted" },
+          { label: "Primary", value: "primary" },
+        ],
+      },
+    ],
+  },
+
+  // ─── Rich Text Section ─────────────────────────────────────────────────────
+  {
+    component: RichTextSection,
+    name: "Rich Text Section",
+    friendlyName: "Rich Text Section",
+    description: "Centered heading and body copy — great for editorial content like About or Story sections.",
+    inputs: [
+      {
+        name: "eyebrow",
+        type: "text",
+        friendlyName: "Eyebrow",
+      },
+      {
+        name: "title",
+        type: "text",
+        friendlyName: "Title",
+        defaultValue: "Our Story",
+      },
+      {
+        name: "body",
+        type: "longText",
+        friendlyName: "Body",
+        defaultValue:
+          "Tell your story here. Multiple paragraphs are supported — just add blank lines between them.",
+      },
+      {
+        name: "alignment",
+        type: "text",
+        friendlyName: "Alignment",
+        defaultValue: "center",
+        enum: [
+          { label: "Center", value: "center" },
+          { label: "Left", value: "left" },
+        ],
+      },
+      {
+        name: "background",
+        type: "text",
+        friendlyName: "Background",
+        defaultValue: "default",
+        enum: [
+          { label: "White", value: "default" },
+          { label: "Muted", value: "muted" },
+        ],
+      },
+    ],
+  },
+
+  // ─── Link Button ───────────────────────────────────────────────────────────
+  {
+    component: LinkButton,
+    name: "Button",
+    friendlyName: "Button",
+    description: "Standalone button that links to a URL.",
+    inputs: [
+      {
+        name: "label",
+        type: "text",
+        friendlyName: "Label",
+        defaultValue: "Click Me",
+        required: true,
+      },
+      {
+        name: "url",
+        type: "url",
+        friendlyName: "Link URL",
+        defaultValue: "#",
+      },
+      {
+        name: "style",
+        type: "text",
+        friendlyName: "Style",
+        defaultValue: "primary",
+        enum: [
+          { label: "Primary", value: "primary" },
+          { label: "Secondary", value: "secondary" },
+          { label: "Outline", value: "outline" },
+          { label: "Ghost", value: "ghost" },
+          { label: "Text link", value: "link" },
+        ],
+      },
+      {
+        name: "size",
+        type: "text",
+        friendlyName: "Size",
+        defaultValue: "default",
+        enum: [
+          { label: "Small", value: "small" },
+          { label: "Default", value: "default" },
+          { label: "Large", value: "large" },
+        ],
+      },
+    ],
+  },
+
+  // ─── Highlight Badge ───────────────────────────────────────────────────────
+  {
+    component: HighlightBadge,
+    name: "Highlight Badge",
+    friendlyName: "Highlight Badge",
+    description: "Small badge to highlight a status or category (e.g. New, Sale, Featured).",
+    inputs: [
+      {
+        name: "label",
+        type: "text",
+        friendlyName: "Label",
+        defaultValue: "New",
+        required: true,
+      },
+      {
+        name: "style",
+        type: "text",
+        friendlyName: "Style",
+        defaultValue: "default",
+        enum: [
+          { label: "Default", value: "default" },
+          { label: "Secondary", value: "secondary" },
+          { label: "Outline", value: "outline" },
+        ],
       },
     ],
   },

@@ -1,7 +1,7 @@
 import { queryClient } from "./lib/queryClient";
 import { QueryClientProvider } from "@tanstack/react-query";
 import { Toaster } from "@/components/ui/toaster";
-import NotFound from "@/pages/NotFound";
+import BuilderPage from "@/pages/BuilderPage";
 import Index from "@/pages/Index";
 import Shop from "@/pages/Shop";
 import About from "@/pages/About";
@@ -14,19 +14,35 @@ import "@/global.css";
 
 const isBuilderEditor = isEditing() || isPreviewing();
 
-function Router() {
-  const RouterComponent = isBuilderEditor ? MemoryRouter : BrowserRouter;
+function AppRoutes() {
   return (
-    <RouterComponent>
-      <Routes>
-        <ReactRoute path="/" element={<Index />} />
-        <ReactRoute path="/shop" element={<Shop />} />
-        <ReactRoute path="/about" element={<About />} />
-        <ReactRoute path="/events" element={<Events />} />
-        <ReactRoute path="/parks" element={<Parks />} />
-        <ReactRoute path="*" element={<NotFound />} />
-      </Routes>
-    </RouterComponent>
+    <Routes>
+      <ReactRoute path="/" element={<Index />} />
+      <ReactRoute path="/shop" element={<Shop />} />
+      <ReactRoute path="/about" element={<About />} />
+      <ReactRoute path="/events" element={<Events />} />
+      <ReactRoute path="/parks" element={<Parks />} />
+      <ReactRoute path="*" element={<BuilderPage />} />
+    </Routes>
+  );
+}
+
+function Router() {
+  if (isBuilderEditor) {
+    const initialPath =
+      typeof window !== "undefined"
+        ? window.location.pathname + window.location.search
+        : "/";
+    return (
+      <MemoryRouter initialEntries={[initialPath]}>
+        <AppRoutes />
+      </MemoryRouter>
+    );
+  }
+  return (
+    <BrowserRouter>
+      <AppRoutes />
+    </BrowserRouter>
   );
 }
 
