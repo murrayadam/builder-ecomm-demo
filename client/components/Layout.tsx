@@ -34,6 +34,9 @@ export default function Layout({ children }: { children: React.ReactNode }) {
             <Link to="/about" className="text-sm font-medium hover:text-primary transition-colors">
               About
             </Link>
+            <Link to="/contact" className="text-sm font-medium hover:text-primary transition-colors">
+              Contact
+            </Link>
           </nav>
 
           {/* Actions */}
@@ -75,12 +78,19 @@ export default function Layout({ children }: { children: React.ReactNode }) {
                   >
                     Events
                   </Link>
-                  <Link 
-                    to="/about" 
+                  <Link
+                    to="/about"
                     className="text-lg font-medium"
                     onClick={() => setIsMobileMenuOpen(false)}
                   >
                     About
+                  </Link>
+                  <Link
+                    to="/contact"
+                    className="text-lg font-medium"
+                    onClick={() => setIsMobileMenuOpen(false)}
+                  >
+                    Contact
                   </Link>
                 </nav>
               </SheetContent>
@@ -127,6 +137,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
                 <li><Link to="/events" className="hover:text-primary">Events</Link></li>
                 <li><Link to="/about" className="hover:text-primary">Our Story</Link></li>
                 <li><Link to="/about" className="hover:text-primary">Journal</Link></li>
+                <li><Link to="/contact" className="hover:text-primary">Contact</Link></li>
               </ul>
             </div>
 
